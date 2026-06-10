@@ -35,7 +35,7 @@ Image Style Studio ist ein lokales Full-Stack-Tool zum Entwickeln, Speichern und
 
 - Neue Server-Side-Features als `createServerFn` in `src/server/` kapseln; keine `fetch`-eigenen API-Routes.
 - Neue Bildprovider als `ImageProvider`-Interface in `src/lib/providers/` implementieren und in `src/lib/providers/index.ts` registrieren.
-- Schemaänderungen in `src/lib/schema/photoStyle.ts` starten; Formular-Rendering folgt automatisch via `src/lib/schema/fields.ts`.
+- Foto-Schemaänderungen in `src/lib/schema/photoStyle.ts` starten; Formular-Rendering folgt automatisch via `src/lib/schema/fields.ts`. Andere Bildarten und neue Bildarten in `src/lib/kinds/` (eigenes AGENTS.md).
 - Nach `prisma/schema.prisma`-Änderungen: `npm run db:push` (Entwicklung) oder `npm run db:migrate` (Produktion).
 
 ## Verification
@@ -52,7 +52,8 @@ npm run build     # TypeScript-Kompilierung + Bundling
 - [`src/components/AGENTS.md`](src/components/AGENTS.md) — React-UI-Komponenten
 - [`src/server/AGENTS.md`](src/server/AGENTS.md) — Server Functions (TanStack Start)
 - [`src/lib/AGENTS.md`](src/lib/AGENTS.md) — Shared Library: Schema, Prompt, Utility
+- [`src/lib/kinds/AGENTS.md`](src/lib/kinds/AGENTS.md) — Bildart-Registry (foto, illustration, infografik)
 - [`src/lib/providers/AGENTS.md`](src/lib/providers/AGENTS.md) — Provider-Abstraktion (ImageProvider-Interface)
-- [`src/lib/schema/AGENTS.md`](src/lib/schema/AGENTS.md) — Zod-Fotostil-Schema (Single Source of Truth)
+- [`src/lib/schema/AGENTS.md`](src/lib/schema/AGENTS.md) — Zod-Fotostil-Schema (Single Source of Truth für Foto)
 - [`src/lib/storage/AGENTS.md`](src/lib/storage/AGENTS.md) — Storage-Adapter-Interface
 - [`prisma/AGENTS.md`](prisma/AGENTS.md) — Datenmodell, Schema-Regeln, Migrationen

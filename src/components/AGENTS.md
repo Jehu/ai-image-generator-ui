@@ -18,17 +18,17 @@ Alle `.tsx`-Dateien in diesem Verzeichnis.
 
 | Datei | Funktion |
 |---|---|
-| `StyleEditor.tsx` | Haupt-Editor mit Formular- und JSON-Tab; rendert Gruppen aus `src/lib/schema/fields.ts` |
+| `StyleEditor.tsx` | Haupt-Editor mit Formular- und JSON-Tab; `kind`-Prop wählt die Bildart, rendert Gruppen/Top-Felder generisch aus `getKind(kind)` (`src/lib/kinds/`) |
 | `AnchorManager.tsx` | Anker-Bilder eines Stils anzeigen, hinzufügen, entfernen |
 | `ResultGrid.tsx` | Generierungs-Ergebnisse als Bildgitter; Klick öffnet die `Lightbox`; „Als Anker setzen"-Aktion |
 | `Lightbox.tsx` | Vollbild-Ansicht generierter Bilder (Portal); Navigation per Pfeil/Tasten, Download des Originalbildes via `downloadDataUrl` aus `#/lib/export` |
 | `ModelPicker.tsx` | Dropdown zur Wahl des Bildmodells; lädt `listAvailableModels`, rendert nur bei >1 verfügbarem Modell, fällt bei fehlendem Modell auf das erste verfügbare zurück |
 | `SaveStyleDialog.tsx` | Dialog zum Speichern des aktuellen Stils aus dem Playground |
 | `PromptPreview.tsx` | Echtzeit-Vorschau des kompilierten Prompts (via `compilePrompt`) |
-| `PresetPicker.tsx` | Vorauswahl gespeicherter Stile für den Playground |
+| `PresetPicker.tsx` | Kuratierte Stil-Vorlagen der aktiven Bildart (`kind`-Prop → `getKind(kind).presets`) |
 | `InfoHint.tsx` | Kleines Tooltip-Icon für Feldbeschreibungen |
 
 ## Work Guidance
 
-- `StyleEditor` rendert Felder dynamisch aus `GROUPS` / `TOP_FIELDS` in `src/lib/schema/fields.ts` — neue Stil-Felder dort eintragen, nicht in der Komponente hardcoden.
+- `StyleEditor` rendert Felder generisch aus der Bildart-Registry (`getKind(kind).groups` / `.topFields`). Neue Felder im jeweiligen `kinds/<kind>.ts` (Foto: `src/lib/schema/fields.ts`) eintragen, nicht in der Komponente hardcoden.
 - `AnchorManager` nutzt `addAnchorImage` / `removeAnchorImage` aus `src/server/images.ts`.

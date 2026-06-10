@@ -2,11 +2,13 @@
 // keine `unknown`-Werte — sonst lehnt TanStack Start die Serialisierung ab).
 import type { JsonObject } from './json'
 import type { GenerateParams } from './providers/types'
+import type { ImageKind } from './kinds/types'
 
 export interface StyleDTO {
   id: string
   name: string
   description: string | null
+  kind: ImageKind
   tags: Array<string>
   styleJson: JsonObject
   schemaVersion: number

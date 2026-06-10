@@ -15,7 +15,8 @@ export type PresetCategory =
 export interface StylePreset {
   id: string
   name: string
-  category: PresetCategory
+  // Pro Bildart eigene Kategorien möglich -> `string` (Foto nutzt PresetCategory).
+  category: string
   description: string
   styleJson: JsonObject
   /** optional empfohlene Generierungs-Parameter */

@@ -2,7 +2,6 @@
 // Stil-Formulars aus der Taxonomie. Reihenfolge = Anzeigereihenfolge.
 // `help` = kurzer Erklärtext (ℹ-Icon im Formular).
 import * as T from '#/lib/taxonomy'
-import type { StyleGroup } from './photoStyle'
 
 export type FieldType = 'text' | 'number' | 'boolean' | 'list' | 'colorlist'
 
@@ -16,7 +15,9 @@ export interface FieldDef {
 }
 
 export interface GroupDef {
-  key: StyleGroup
+  // Gruppen-Key = oberster Block im Stil-JSON. Pro Bildart frei (z. B. 'camera',
+  // 'style', 'layout') — daher `string`, nicht das foto-spezifische StyleGroup.
+  key: string
   label: string
   fields: Array<FieldDef>
 }

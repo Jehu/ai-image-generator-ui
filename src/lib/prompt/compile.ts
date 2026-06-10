@@ -3,6 +3,7 @@
 // Referenzbildern wird eine Stil-Transfer-Anweisung vorangestellt.
 
 import type { JsonObject } from '#/lib/json'
+import type { ImageKind } from '#/lib/kinds/types'
 
 export interface CompileInput {
   /** fixierter Parameter-Block ohne subject */
@@ -11,6 +12,8 @@ export interface CompileInput {
   subject: string
   /** ob Referenzbilder mitgeschickt werden */
   hasReferences?: boolean
+  /** Bildart — steuert bildartspezifische Prompt-Hinweise (z.B. Text-Rendering). */
+  kind?: ImageKind
 }
 
 export interface CompileOutput {
@@ -23,11 +26,19 @@ export interface CompileOutput {
 const STYLE_REFERENCE_INSTRUCTION =
   'Use the photographic style, lighting, color grading, and overall look from the provided reference image(s). Keep the visual style perfectly consistent; only change the subject as described below.'
 
+// Infografiken leben von scharfem, korrekt geschriebenem Text — Nano Banana Pro
+// rendert Text gut, profitiert aber von einem expliziten Hinweis.
+const INFOGRAPHIC_TEXT_INSTRUCTION =
+  'Render all text, labels, numbers and typographic elements crisply and legibly with correct spelling. Maintain a clear visual hierarchy and a clean, aligned layout.'
+
 export function compilePrompt(input: CompileInput): CompileOutput {
-  const { styleJson, subject, hasReferences = false } = input
+  const { styleJson, subject, hasReferences = false, kind } = input
 
   const promptObject: JsonObject = {
     ...(hasReferences ? { style_reference: STYLE_REFERENCE_INSTRUCTION } : {}),
+    ...(kind === 'infografik'
+      ? { text_rendering: INFOGRAPHIC_TEXT_INSTRUCTION }
+      : {}),
     ...styleJson,
     subject,
   }

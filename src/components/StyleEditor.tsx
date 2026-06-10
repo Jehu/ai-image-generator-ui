@@ -3,12 +3,12 @@ import { useQuery } from '@tanstack/react-query'
 import CodeMirror from '@uiw/react-codemirror'
 import { json } from '@codemirror/lang-json'
 import type { JsonObject, JsonValue } from '#/lib/json'
-import { GROUPS, TOP_FIELDS } from '#/lib/schema/fields'
 import type { FieldDef, GroupDef } from '#/lib/schema/fields'
 import { InfoHint } from '#/components/InfoHint'
 import { CAMERA_BODIES } from '#/lib/taxonomy'
 import { listCameraBodies } from '#/server/cameras'
-import { validatePhotoStyle } from '#/lib/schema/photoStyle'
+import { getKind } from '#/lib/kinds'
+import type { ImageKind } from '#/lib/kinds'
 import {
   formatList,
   getGroupField,
@@ -26,10 +26,13 @@ const inputCls =
 export function StyleEditor({
   value,
   onChange,
+  kind = 'foto',
 }: {
   value: JsonObject
   onChange: (next: JsonObject) => void
+  kind?: ImageKind
 }) {
+  const def = getKind(kind)
   const [tab, setTab] = useState<'form' | 'json'>('form')
   const [jsonText, setJsonText] = useState(() => JSON.stringify(value, null, 2))
   const [jsonError, setJsonError] = useState<string | null>(null)
@@ -39,23 +42,29 @@ export function StyleEditor({
   useEffect(() => setMounted(true), [])
 
   // Eigene Kamera-Bodys (aus den Einstellungen) zu den Defaults mischen.
+  // Nur relevant für Bildarten, deren Felder dynamische Optionen nutzen (Foto: 'body').
+  const usesBodyOptions = def.dynamicOptionKeys.includes('body')
   const { data: customBodies = [] } = useQuery({
     queryKey: ['cameraBodies'],
     queryFn: () => listCameraBodies(),
+    enabled: usesBodyOptions,
   })
-  const dynamicOptions: DynamicOptions = useMemo(() => {
-    const defaults = CAMERA_BODIES as ReadonlyArray<string>
-    const merged = [
-      ...defaults,
-      ...customBodies.filter((b) => !defaults.includes(b)),
-    ]
-    return { body: merged }
-  }, [customBodies])
+  const dynamicOptions = useMemo<DynamicOptions>(() => {
+    const opts: DynamicOptions = {}
+    if (usesBodyOptions) {
+      const defaults = CAMERA_BODIES as ReadonlyArray<string>
+      opts.body = [
+        ...defaults,
+        ...customBodies.filter((b) => !defaults.includes(b)),
+      ]
+    }
+    return opts
+  }, [usesBodyOptions, customBodies])
 
   function openJson() {
     setJsonText(JSON.stringify(value, null, 2))
     setJsonError(null)
-    setIssues(validatePhotoStyle(value).issues)
+    setIssues(def.validate(value).issues)
     setTab('json')
   }
 
@@ -77,7 +86,7 @@ export function StyleEditor({
       return
     }
     setJsonError(null)
-    setIssues(validatePhotoStyle(parsed).issues)
+    setIssues(def.validate(parsed).issues)
     onChange(parsed as JsonObject)
   }
 
@@ -94,7 +103,7 @@ export function StyleEditor({
 
       {tab === 'form' ? (
         <div className="flex flex-col gap-5 p-4">
-          {GROUPS.map((group) => (
+          {def.groups.map((group) => (
             <GroupSection
               key={group.key}
               group={group}
@@ -105,20 +114,17 @@ export function StyleEditor({
           ))}
 
           <div className="grid gap-3">
-            <TextAreaField
-              label={TOP_FIELDS.mood.label}
-              value={getTop(value, 'mood')}
-              options={TOP_FIELDS.mood.options}
-              help={TOP_FIELDS.mood.help}
-              onChange={(v) => onChange(setTop(value, 'mood', v))}
-            />
-            <TextAreaField
-              label={TOP_FIELDS.negative.label}
-              value={getTop(value, 'negative')}
-              placeholder={TOP_FIELDS.negative.placeholder}
-              help={TOP_FIELDS.negative.help}
-              onChange={(v) => onChange(setTop(value, 'negative', v))}
-            />
+            {def.topFields.map((field) => (
+              <TextAreaField
+                key={field.key}
+                label={field.label}
+                value={getTop(value, field.key)}
+                options={field.options}
+                placeholder={field.placeholder}
+                help={field.help}
+                onChange={(v) => onChange(setTop(value, field.key, v))}
+              />
+            ))}
           </div>
         </div>
       ) : (

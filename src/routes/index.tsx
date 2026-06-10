@@ -10,6 +10,8 @@ import { PromptPreview } from '#/components/PromptPreview'
 import { PresetPicker } from '#/components/PresetPicker'
 import { SaveStyleDialog } from '#/components/SaveStyleDialog'
 import { ModelPicker } from '#/components/ModelPicker'
+import { getKind, KIND_LIST } from '#/lib/kinds'
+import type { ImageKind } from '#/lib/kinds'
 import type { JsonObject } from '#/lib/json'
 import type {
   AspectRatio,
@@ -33,30 +35,12 @@ const ASPECT_RATIOS: Array<AspectRatio> = [
 const IMAGE_SIZES: Array<ImageSize> = ['1K', '2K', '4K']
 const THINKING_LEVELS: Array<ThinkingLevelOpt> = ['minimal', 'low', 'medium', 'high']
 
-const DEFAULT_STYLE: JsonObject = {
-  type: 'photographic',
-  camera: { lens_mm: 35, aperture: 'f/2.0' },
-  lighting: {
-    setup: 'soft window light',
-    quality: 'soft, diffused',
-    color_temperature_k: 5200,
-  },
-  color: {
-    film_emulation: 'Kodak Portra 400',
-    grade: 'lifted shadows, muted saturation',
-    temperature: 'warm',
-  },
-  post_processing: { grain: 'fine, subtle' },
-  composition: { framing: 'medium', rule_of_thirds: true },
-  mood: 'calm, editorial, premium',
-  negative: 'no HDR look, no oversaturation, no harsh shadows',
-}
-
 function Playground() {
-  const [style, setStyle] = useState<JsonObject>(DEFAULT_STYLE)
-  const [subject, setSubject] = useState(
-    'a ceramic coffee cup on a wooden desk next to a laptop',
+  const [kind, setKind] = useState<ImageKind>('foto')
+  const [style, setStyle] = useState<JsonObject>(
+    () => getKind('foto').defaultStyle,
   )
+  const [subject, setSubject] = useState(() => getKind('foto').exampleSubject)
   const [aspectRatio, setAspectRatio] = useState<AspectRatio>('4:5')
   const [imageSize, setImageSize] = useState<ImageSize>('2K')
   const [count, setCount] = useState(2)
@@ -93,12 +77,23 @@ function Playground() {
     },
   })
 
+  // Bildart wechseln: Default-Stil + passendes Beispiel-Motiv der neuen Bildart
+  // laden (überschreibt den Editor-Inhalt — die Schemata sind nicht kompatibel).
+  function handleKindChange(next: ImageKind) {
+    if (next === kind) return
+    const def = getKind(next)
+    setKind(next)
+    setStyle(def.defaultStyle)
+    setSubject(def.exampleSubject)
+  }
+
   function handleGenerate() {
     mutation.mutate({
       styleJson: style,
       subject,
       provider,
       modelId,
+      kind,
       params: { aspectRatio, imageSize, count, thinkingLevel },
     })
   }
@@ -115,7 +110,33 @@ function Playground() {
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Linke Spalte: Editor */}
         <div className="flex min-w-0 flex-col gap-4">
+          {/* Bildart-Auswahl */}
+          <div>
+            <label className="mb-1 block text-sm font-medium">Bildart</label>
+            <div className="flex gap-1 rounded-md border bg-muted/40 p-1">
+              {KIND_LIST.map((k) => (
+                <button
+                  key={k.kind}
+                  type="button"
+                  onClick={() => handleKindChange(k.kind)}
+                  title={k.description}
+                  className={`flex-1 rounded px-3 py-1.5 text-sm font-medium ${
+                    kind === k.kind
+                      ? 'bg-background shadow-sm'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  {k.label}
+                </button>
+              ))}
+            </div>
+            <p className="text-muted-foreground mt-1 text-xs">
+              {getKind(kind).description}
+            </p>
+          </div>
+
           <PresetPicker
+            kind={kind}
             onApply={(preset) => {
               setStyle(preset.styleJson)
               if (preset.params?.aspectRatio) setAspectRatio(preset.params.aspectRatio)
@@ -125,7 +146,9 @@ function Playground() {
             }}
           />
 
-          {/* Stil aus Bild ableiten */}
+          {/* Stil aus Bild ableiten — nur Foto (Analyse liefert ein Foto-Schema). */}
+          {kind === 'foto' && (
+          <>
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-2">
               <input
@@ -178,12 +201,14 @@ function Playground() {
               </span>
             </div>
           )}
+          </>
+          )}
 
           <div
             className={flashing ? 'style-flash' : undefined}
             onAnimationEnd={() => setFlashing(false)}
           >
-            <StyleEditor value={style} onChange={setStyle} />
+            <StyleEditor value={style} onChange={setStyle} kind={kind} />
           </div>
 
           <div>
@@ -259,7 +284,7 @@ function Playground() {
             </Field>
           </div>
 
-          <PromptPreview styleJson={style} subject={subject} />
+          <PromptPreview styleJson={style} subject={subject} kind={kind} />
 
           <div className="flex gap-2">
             <button
@@ -316,6 +341,7 @@ function Playground() {
         defaultParams={{ aspectRatio, imageSize, count, thinkingLevel }}
         provider={provider}
         modelId={modelId}
+        kind={kind}
       />
     </div>
   )

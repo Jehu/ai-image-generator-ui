@@ -20,6 +20,7 @@ import { ModelPicker } from '#/components/ModelPicker'
 import { PromptPreview } from '#/components/PromptPreview'
 import { parseList } from '#/lib/styleObject'
 import { parseDataUrl } from '#/lib/fileToDataUrl'
+import { getKind } from '#/lib/kinds'
 import type { JsonObject } from '#/lib/json'
 import type {
   AspectRatio,
@@ -135,6 +136,7 @@ function StyleDetail() {
         data: {
           id,
           name,
+          kind: style?.kind,
           tags: parseList(tags),
           styleJson,
           defaultParams: { aspectRatio, imageSize, count, thinkingLevel },
@@ -173,6 +175,7 @@ function StyleDetail() {
             styleId: id,
             provider,
             modelId,
+            kind: style?.kind,
             params: { aspectRatio, imageSize, count, thinkingLevel },
           },
         })
@@ -225,7 +228,7 @@ function StyleDetail() {
       tags: parseList(tags),
       styleJson,
       defaultParams: { aspectRatio, imageSize, count, thinkingLevel },
-      kind: undefined,
+      kind: style?.kind,
     })
   }
 
@@ -261,7 +264,7 @@ function StyleDetail() {
           </Link>
           <h1 className="text-2xl font-bold">{style.name}</h1>
           <p className="text-muted-foreground text-xs">
-            Version {style.version} · {style.modelId}
+            {getKind(style.kind).label} · Version {style.version} · {style.modelId}
           </p>
         </div>
       </header>
@@ -289,7 +292,7 @@ function StyleDetail() {
             </label>
           </div>
 
-          <StyleEditor value={styleJson} onChange={setStyleJson} />
+          <StyleEditor value={styleJson} onChange={setStyleJson} kind={style.kind} />
 
           <AnchorManager styleId={id} />
 
@@ -401,6 +404,7 @@ function StyleDetail() {
             styleJson={styleJson}
             subject={firstMotif}
             hasReferences={hasAnchors}
+            kind={style.kind}
           />
           {motifCount > 1 && (
             <p className="text-muted-foreground -mt-2 text-xs">

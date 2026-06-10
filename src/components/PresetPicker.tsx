@@ -1,12 +1,20 @@
 import { useState } from 'react'
 import { Sparkles } from 'lucide-react'
-import { PRESET_CATEGORIES, STYLE_PRESETS } from '#/lib/presets'
+import { getKind } from '#/lib/kinds'
+import type { ImageKind } from '#/lib/kinds'
 import type { StylePreset } from '#/lib/presets'
 
-/** Dropdown mit kuratierten Stil-Vorlagen, gruppiert nach Kategorie.
- *  Auswahl füllt das Formular vor (einmalige Aktion). */
-export function PresetPicker({ onApply }: { onApply: (preset: StylePreset) => void }) {
+/** Dropdown mit kuratierten Stil-Vorlagen der aktiven Bildart, gruppiert nach
+ *  Kategorie. Auswahl füllt das Formular vor (einmalige Aktion). */
+export function PresetPicker({
+  onApply,
+  kind = 'foto',
+}: {
+  onApply: (preset: StylePreset) => void
+  kind?: ImageKind
+}) {
   const [applied, setApplied] = useState<StylePreset | null>(null)
+  const def = getKind(kind)
 
   return (
     <div>
@@ -17,7 +25,7 @@ export function PresetPicker({ onApply }: { onApply: (preset: StylePreset) => vo
       <select
         value=""
         onChange={(e) => {
-          const preset = STYLE_PRESETS.find((p) => p.id === e.target.value)
+          const preset = def.presets.find((p) => p.id === e.target.value)
           if (preset) {
             onApply(preset)
             setApplied(preset)
@@ -26,9 +34,9 @@ export function PresetPicker({ onApply }: { onApply: (preset: StylePreset) => vo
         className="w-full rounded-md border bg-background p-2 text-sm"
       >
         <option value="">— Vorlage wählen (füllt das Formular) —</option>
-        {PRESET_CATEGORIES.map((cat) => (
+        {def.presetCategories.map((cat) => (
           <optgroup key={cat} label={cat}>
-            {STYLE_PRESETS.filter((p) => p.category === cat).map((p) => (
+            {def.presets.filter((p) => p.category === cat).map((p) => (
               <option key={p.id} value={p.id}>
                 {p.name}
               </option>

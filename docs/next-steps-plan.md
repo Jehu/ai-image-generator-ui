@@ -12,7 +12,18 @@ mittel) → 3. Illustrationen & Infografiken (großer Scope, Refactor).
   Gemini-Vision, Default-Modell `gemini-2.5-flash` über `GEMINI_ANALYSIS_MODEL`; UI „Stil aus Bild
   ableiten" im Playground; geteilter Helper `src/lib/fileToDataUrl.ts`). Verifiziert: tsc + Build +
   Tests + Lint grün. Hinweis: echter Vision-API-Call (Credits + reales Bild) noch manuell zu testen.
-**Nächster Punkt: Feature C — Illustrationen & Infografiken.**
+- ✅ **Feature C vollständig umgesetzt** (Bildart-Dimension + Schema-Registry `src/lib/kinds/`:
+  `foto` montiert aus dem bestehenden Foto-Material, `illustration` + `infografik` neu mit eigenem
+  Zod-Schema/Feldern/Presets. `Style.kind` in Prisma (Default `foto`), `StyleDTO.kind`, Create/Update/
+  Duplicate-Mapper. UI: Bildart-Segmented-Control im Playground (lädt `defaultStyle`, reicht `kind`
+  an StyleEditor/PresetPicker/PromptPreview/SaveStyleDialog), `StyleEditor` rendert generisch aus
+  `getKind(kind)`, „Stil aus Bild" nur bei Foto. Bibliothek: Kind-Badge je Karte + Kind-Filter.
+  Detailseite: `kind` aus Stil geladen + Badge. `compile.ts` fügt bei `infografik` einen
+  `text_rendering`-Hinweis hinzu (über `CompileInput.kind`, durchgereicht von `generate.ts`).
+  Verifiziert: tsc + Build + 22 Tests + Lint grün; im Browser alle drei Bildarten geprüft
+  (Formularwechsel, Presets, Prompt-Hinweis, Speichern→Badge/Filter, keine Konsolenfehler).
+  Hinweis: je 1 echte Test-Generierung pro Kind (Illustration/Infografik) noch manuell zu prüfen.
+**Alle drei geplanten Features (A, B, C) sind umgesetzt.**
 
 ## Architektur-Kontext (gilt für alle Features)
 

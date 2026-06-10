@@ -4,6 +4,7 @@ import { createStyle } from '#/server/styles'
 import { parseList } from '#/lib/styleObject'
 import type { JsonObject } from '#/lib/json'
 import type { GenerateParams } from '#/lib/providers/types'
+import type { ImageKind } from '#/lib/kinds'
 import type { StyleDTO } from '#/lib/types'
 
 export function SaveStyleDialog({
@@ -11,6 +12,7 @@ export function SaveStyleDialog({
   defaultParams,
   provider,
   modelId,
+  kind,
   open,
   onClose,
   onSaved,
@@ -19,6 +21,7 @@ export function SaveStyleDialog({
   defaultParams: GenerateParams
   provider?: string
   modelId?: string
+  kind?: ImageKind
   open: boolean
   onClose: () => void
   onSaved?: (style: StyleDTO) => void
@@ -34,6 +37,7 @@ export function SaveStyleDialog({
         data: {
           name,
           description: description || undefined,
+          kind,
           tags: parseList(tags),
           styleJson,
           defaultParams,

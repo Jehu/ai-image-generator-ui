@@ -10,6 +10,8 @@ import {
 import { getImageDataUrl } from '#/server/images'
 import { readStyleImport } from '#/lib/export'
 import type { StyleExport } from '#/lib/export'
+import { asImageKind, getKind, KIND_LIST } from '#/lib/kinds'
+import type { ImageKind } from '#/lib/kinds'
 
 export const Route = createFileRoute('/styles/')({ component: StylesLibrary })
 
@@ -32,6 +34,7 @@ function StylesLibrary() {
   const queryClient = useQueryClient()
   const [search, setSearch] = useState('')
   const [activeTag, setActiveTag] = useState<string | null>(null)
+  const [activeKind, setActiveKind] = useState<ImageKind | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const { data: styles = [], isLoading } = useQuery({
@@ -48,14 +51,15 @@ function StylesLibrary() {
   const filtered = useMemo(() => {
     const q = search.toLowerCase()
     return styles.filter((s) => {
+      const matchesKind = !activeKind || s.kind === activeKind
       const matchesTag = !activeTag || s.tags.includes(activeTag)
       const matchesSearch =
         !q ||
         s.name.toLowerCase().includes(q) ||
         (s.description ?? '').toLowerCase().includes(q)
-      return matchesTag && matchesSearch
+      return matchesKind && matchesTag && matchesSearch
     })
-  }, [styles, search, activeTag])
+  }, [styles, search, activeTag, activeKind])
 
   const dup = useMutation({
     mutationFn: (id: string) => duplicateStyle({ data: { id } }),
@@ -70,6 +74,7 @@ function StylesLibrary() {
       createStyle({
         data: {
           name: s.name,
+          kind: asImageKind(s.kind),
           tags: s.tags,
           styleJson: s.styleJson,
           defaultParams: s.defaultParams,
@@ -120,6 +125,26 @@ function StylesLibrary() {
         </div>
       </header>
 
+      <div className="mb-3 flex flex-wrap items-center gap-1">
+        <span className="text-muted-foreground mr-1 text-xs font-medium">
+          Bildart:
+        </span>
+        <TagChip active={activeKind === null} onClick={() => setActiveKind(null)}>
+          Alle
+        </TagChip>
+        {KIND_LIST.map((k) => (
+          <TagChip
+            key={k.kind}
+            active={activeKind === k.kind}
+            onClick={() =>
+              setActiveKind(activeKind === k.kind ? null : k.kind)
+            }
+          >
+            {k.label}
+          </TagChip>
+        ))}
+      </div>
+
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <input
           value={search}
@@ -169,9 +194,14 @@ function StylesLibrary() {
                 >
                   {s.name}
                 </Link>
-                <span className="text-muted-foreground shrink-0 text-xs">
-                  v{s.version}
-                </span>
+                <div className="flex shrink-0 items-center gap-1.5">
+                  <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-primary">
+                    {getKind(s.kind).label}
+                  </span>
+                  <span className="text-muted-foreground text-xs">
+                    v{s.version}
+                  </span>
+                </div>
               </div>
               {s.description && (
                 <p className="text-muted-foreground mt-1 line-clamp-2 text-sm">

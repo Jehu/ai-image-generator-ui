@@ -2,6 +2,8 @@ import { createServerFn } from '@tanstack/react-start'
 import type { Prisma } from '#/generated/prisma/client'
 import type { JsonObject } from '#/lib/json'
 import type { GenerateParams } from '#/lib/providers/types'
+import { asImageKind } from '#/lib/kinds/types'
+import type { ImageKind } from '#/lib/kinds/types'
 import type { GenerationDTO, StyleDTO, StyleVersionDTO } from '#/lib/types'
 
 const asJson = (v: unknown): Prisma.InputJsonValue => v as Prisma.InputJsonValue
@@ -16,6 +18,7 @@ type StyleRow = {
   id: string
   name: string
   description: string | null
+  kind: string
   tags: unknown
   styleJson: unknown
   schemaVersion: number
@@ -33,6 +36,7 @@ function toStyleDTO(s: StyleRow): StyleDTO {
     id: s.id,
     name: s.name,
     description: s.description,
+    kind: asImageKind(s.kind),
     tags: (s.tags as Array<string>) ?? [],
     styleJson: (s.styleJson as JsonObject) ?? {},
     schemaVersion: s.schemaVersion,
@@ -51,6 +55,7 @@ function toStyleDTO(s: StyleRow): StyleDTO {
 export interface CreateStyleInput {
   name: string
   description?: string
+  kind?: ImageKind
   tags?: Array<string>
   styleJson: JsonObject
   defaultParams?: GenerateParams
@@ -63,6 +68,7 @@ export interface UpdateStyleInput {
   id: string
   name?: string
   description?: string | null
+  kind?: ImageKind
   tags?: Array<string>
   styleJson?: JsonObject
   defaultParams?: GenerateParams
@@ -116,6 +122,7 @@ export const createStyle = createServerFn({ method: 'POST' })
       data: {
         name: data.name.trim(),
         description: data.description ?? null,
+        kind: asImageKind(data.kind),
         tags: asJson(data.tags ?? []),
         styleJson: asJson(data.styleJson),
         defaultParams: asJson(data.defaultParams ?? {}),
@@ -151,6 +158,7 @@ export const updateStyle = createServerFn({ method: 'POST' })
       data: {
         ...(data.name !== undefined ? { name: data.name.trim() } : {}),
         ...(data.description !== undefined ? { description: data.description } : {}),
+        ...(data.kind !== undefined ? { kind: asImageKind(data.kind) } : {}),
         ...(data.tags !== undefined ? { tags: asJson(data.tags) } : {}),
         ...(data.styleJson !== undefined ? { styleJson: asJson(data.styleJson) } : {}),
         ...(data.defaultParams !== undefined
@@ -192,6 +200,7 @@ export const duplicateStyle = createServerFn({ method: 'POST' })
       data: {
         name: `${src.name} (Kopie)`,
         description: src.description,
+        kind: asImageKind(src.kind),
         tags: asJson(src.tags ?? []),
         styleJson: asJson(src.styleJson ?? {}),
         defaultParams: asJson(src.defaultParams ?? {}),

@@ -19,6 +19,7 @@ model Style {
   id            String   @id @default(cuid())
   name          String
   description   String?
+  kind          String   @default("foto") // Bildart: foto | illustration | infografik
   tags          Json // string[]
   styleJson     Json // fixierter Parameter-Block (ohne subject)
   schemaVersion Int      @default(1)

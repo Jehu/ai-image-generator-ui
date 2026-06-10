@@ -3,6 +3,7 @@ import { Check, Copy } from 'lucide-react'
 import { compilePrompt } from '#/lib/prompt/compile'
 import { copyText } from '#/lib/clipboard'
 import type { JsonObject } from '#/lib/json'
+import type { ImageKind } from '#/lib/kinds'
 
 /** Zeigt den fertig kompilierten Prompt (Stil + Motiv) live an und macht ihn
  *  kopierbar — z.B. zur externen Nutzung in aistudio.google.com. */
@@ -10,11 +11,13 @@ export function PromptPreview({
   styleJson,
   subject,
   hasReferences = false,
+  kind,
   defaultOpen = false,
 }: {
   styleJson: JsonObject
   subject: string
   hasReferences?: boolean
+  kind?: ImageKind
   defaultOpen?: boolean
 }) {
   const promptText = useMemo(
@@ -23,8 +26,9 @@ export function PromptPreview({
         styleJson,
         subject: subject.trim() || '<dein Motiv hier>',
         hasReferences,
+        kind,
       }).promptText,
-    [styleJson, subject, hasReferences],
+    [styleJson, subject, hasReferences, kind],
   )
 
   const [copied, setCopied] = useState(false)

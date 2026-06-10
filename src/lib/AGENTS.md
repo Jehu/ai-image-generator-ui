@@ -13,16 +13,19 @@ Alle Dateien in `src/lib/` außer den drei Subdomains mit eigenem AGENTS.md.
 - `types.ts` definiert die serialisierbaren DTO-Typen (`StyleDTO`, `GenerationDTO`, `StyleVersionDTO`). Diese sind die einzige erlaubte Form für Server-Function-Rückgaben.
 - `json.ts` definiert `JsonValue` und `JsonObject` — die kanonischen Typen für beliebige JSON-Daten im System.
 - `styleObject.ts` enthält die Lese/Schreib-Helfer für das Style-JSON-Objekt (`getGroupField`, `setGroupField`, `getTop`, `setTop`, `parseList`, `formatList`).
-- `taxonomy.ts` enthält statische Preset-Listen (z. B. `CAMERA_BODIES`).
-- `presets.ts` enthält vordefinierte Stil-Vorlagen für den `PresetPicker`.
+- `taxonomy.ts` enthält statische Preset-Listen für Foto (z. B. `CAMERA_BODIES`).
+- `presets.ts` enthält vordefinierte Foto-Stil-Vorlagen; `StylePreset.category` ist `string` (jede Bildart bringt eigene Kategorien mit).
+- `kinds/` (eigenes AGENTS.md) ist die **Bildart-Registry** — bündelt Schema/Felder/Presets pro `ImageKind`. `StyleEditor`/`PresetPicker` rendern generisch über `getKind(kind)`.
 - `prompt/compile.ts` ist die einzige Stelle, die `styleJson + subject → promptText` kompiliert. Diese Funktion nie duplizieren.
 - `fileToDataUrl.ts` — **Browser-only** (nutzt `FileReader`, keine Node-Module). Stellt `fileToDataUrl` (File → Data-URL) und `parseDataUrl` (Data-URL → `{ mimeType, base64 }`) bereit. Nur aus React-Komponenten verwenden.
 - `export.ts` — **Browser-only** (nutzt `window`/`document`/`Blob`/`File`/`jszip`, keine Node-Module). Stellt `slugify`, `downloadImagesAsZip`, `downloadStyleAsJson`, `readStyleImport` für Bild-ZIP- und Stil-JSON-Im-/Export bereit. Nur aus React-Komponenten verwenden.
 
 ## Work Guidance
 
-- Neue Stil-Felder: in `src/lib/schema/photoStyle.ts` zum Zod-Schema hinzufügen, dann in `src/lib/schema/fields.ts` als `FieldDef` erfassen — dann rendert `StyleEditor` sie automatisch.
-- Änderungen an `compilePrompt` betreffen das Laufzeitverhalten jeder Generierung; bestehende Tests in `compile.test.ts` müssen grün bleiben.
+- Neue **Foto**-Stil-Felder: in `src/lib/schema/photoStyle.ts` zum Zod-Schema hinzufügen, dann in `src/lib/schema/fields.ts` als `FieldDef` erfassen — dann rendert `StyleEditor` sie automatisch.
+- Felder anderer Bildarten: im jeweiligen `kinds/<kind>.ts` (Schema + `groups`) ergänzen.
+- Neue Bildart: siehe `kinds/AGENTS.md`.
+- Änderungen an `compilePrompt` betreffen das Laufzeitverhalten jeder Generierung; bestehende Tests in `compile.test.ts` müssen grün bleiben. Bildart-Hinweise laufen über `CompileInput.kind`.
 
 ## Verification
 
@@ -32,6 +35,7 @@ npm test   # deckt compile.test.ts, photoStyle.test.ts, styleObject.test.ts, exp
 
 ## Child DOX Index
 
+- [`kinds/AGENTS.md`](kinds/AGENTS.md) — Bildart-Registry (foto, illustration, infografik)
 - [`providers/AGENTS.md`](providers/AGENTS.md) — ImageProvider-Interface, Gemini-Implementierung
-- [`schema/AGENTS.md`](schema/AGENTS.md) — Zod-Fotostil-Schema (Single Source of Truth)
+- [`schema/AGENTS.md`](schema/AGENTS.md) — Zod-Fotostil-Schema (Single Source of Truth für Foto)
 - [`storage/AGENTS.md`](storage/AGENTS.md) — StorageAdapter-Interface, lokale Implementierung

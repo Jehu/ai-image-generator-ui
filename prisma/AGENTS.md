@@ -20,7 +20,7 @@ Datenmodell und Migrationsartefakte für Image Style Studio. SQLite lokal; Model
 
 | Modell | Zweck | Besonderheiten |
 |---|---|---|
-| `Style` | Gespeicherter Fotostil | `anchorImageIds Json` (string[]) — Referenzbilder für Konsistenz |
+| `Style` | Gespeicherter Stil | `kind` (`foto`/`illustration`/`infografik`, Default `foto`); `anchorImageIds Json` (string[]) — Referenzbilder für Konsistenz |
 | `StyleVersion` | Versionsverlauf eines Stils | Wird beim `updateStyle` angelegt wenn `styleJson` sich ändert |
 | `Generation` | Jeder API-Call | `compiledPrompt Json` = exakter Prompt; `status`: `pending/done/error` |
 | `Image` | Bild-Metadaten | `kind`: `output | anchor | upload | reference`; `path` relativ zu cwd |

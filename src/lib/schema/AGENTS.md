@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Zod-Schema für den Fotostil als Single Source of Truth. Treibt Formular-Rendering, Validierung und TypeScript-Typen im gesamten System. Änderungen hier propagieren automatisch in `StyleEditor` und alle Validierungsaufrufe.
+Zod-Schema für den **Fotostil** als Single Source of Truth. Treibt Formular-Rendering, Validierung und TypeScript-Typen für die Bildart `foto`. Die Bildart-Registry (`src/lib/kinds/`, eigenes AGENTS.md) montiert dieses Material in `kinds/foto.ts`; andere Bildarten (illustration, infografik) bringen eigene Schemata mit. Änderungen hier propagieren über die Registry in `StyleEditor`/`PresetPicker` für Foto.
 
 ## Ownership
 

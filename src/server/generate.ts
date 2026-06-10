@@ -4,6 +4,7 @@ import { getProvider } from '#/lib/providers'
 import { compilePrompt } from '#/lib/prompt/compile'
 import type { JsonObject } from '#/lib/json'
 import type { GenerateParams, ReferenceImage } from '#/lib/providers/types'
+import type { ImageKind } from '#/lib/kinds/types'
 
 const asJson = (v: unknown): Prisma.InputJsonValue => v as Prisma.InputJsonValue
 
@@ -14,6 +15,8 @@ export interface GenerateInput {
   modelId?: string
   params?: GenerateParams
   references?: Array<ReferenceImage>
+  /** Bildart — steuert bildartspezifische Prompt-Hinweise (z.B. Text-Rendering). */
+  kind?: ImageKind
   /** wenn gesetzt: Generierung wird in der Historie dieses Stils gespeichert */
   styleId?: string
 }
@@ -72,6 +75,7 @@ export const generateImage = createServerFn({ method: 'POST' })
       styleJson: data.styleJson,
       subject: data.subject,
       hasReferences: references.length > 0,
+      kind: data.kind,
     })
 
     const params: GenerateParams = {
