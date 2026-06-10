@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useParams } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useRef, useState } from 'react'
+import { Download } from 'lucide-react'
 import { generateImage } from '#/server/generate'
 import {
   getStyle,
@@ -199,20 +200,10 @@ function StyleDetail() {
     mutationFn: async () => {
       if (!style) return
       const images: Array<ExportImage> = []
-      const styleSlug = slugify(style.name)
       for (const h of history) {
-        const subjectSlug = slugify(h.subject)
-        let n = 1
-        for (const imageId of h.outputImageIds) {
-          const res = await getImageDataUrl({ data: { id: imageId } })
-          if (res) {
-            images.push({
-              dataUrl: res.dataUrl,
-              filename: `${styleSlug}-${subjectSlug}-${n}.png`,
-            })
-            n++
-          }
-        }
+        images.push(
+          ...(await loadSetImages(style.name, h.subject, h.outputImageIds)),
+        )
       }
       await downloadImagesAsZip(images, style.name)
     },
@@ -513,6 +504,7 @@ function StyleDetail() {
                     {h.outputImageIds[0] && (
                       <HistoryThumb
                         imageId={h.outputImageIds[0]}
+                        count={h.outputImageIds.length}
                         onOpen={() => openHistoryLightbox(h.outputImageIds)}
                       />
                     )}
@@ -521,6 +513,13 @@ function StyleDetail() {
                       {new Date(h.createdAt).toLocaleString('de-DE')} ·{' '}
                       {h.costUsd != null ? `$${h.costUsd.toFixed(3)}` : '—'}
                     </span>
+                    {style && h.outputImageIds.length > 0 && (
+                      <HistorySetDownloadButton
+                        styleName={style.name}
+                        subject={h.subject}
+                        imageIds={h.outputImageIds}
+                      />
+                    )}
                   </li>
                 ))}
               </ul>
@@ -541,11 +540,14 @@ function StyleDetail() {
 }
 
 // Kleines Thumbnail des ersten Output-Bilds einer Generierung.
+// Bei mehreren Bildern zeigt ein Badge die Anzahl im Set.
 function HistoryThumb({
   imageId,
+  count,
   onOpen,
 }: {
   imageId: string
+  count: number
   onOpen: () => void
 }) {
   const { data } = useQuery({
@@ -557,14 +559,75 @@ function HistoryThumb({
     <button
       type="button"
       onClick={onOpen}
-      title="Vergrößern"
-      className="shrink-0 cursor-pointer"
+      title={count > 1 ? `${count} Bilder · vergrößern` : 'Vergrößern'}
+      className="relative shrink-0 cursor-pointer"
     >
       <img
         src={data.dataUrl}
         alt=""
         className="h-10 w-10 rounded object-cover shrink-0"
       />
+      {count > 1 && (
+        <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-foreground px-1 text-[10px] font-medium leading-none text-background">
+          {count}
+        </span>
+      )}
+    </button>
+  )
+}
+
+// Lädt alle Output-Bilder einer Generierung als ExportImage[] (für ZIP-Export).
+// Dateinamen: <stil>-<motiv>-<n>.png. Geteilt von „Alle Bilder" und Set-Download.
+async function loadSetImages(
+  styleName: string,
+  subject: string,
+  imageIds: Array<string>,
+): Promise<Array<ExportImage>> {
+  const styleSlug = slugify(styleName)
+  const subjectSlug = slugify(subject)
+  const images: Array<ExportImage> = []
+  let n = 1
+  for (const imageId of imageIds) {
+    const res = await getImageDataUrl({ data: { id: imageId } })
+    if (res) {
+      images.push({
+        dataUrl: res.dataUrl,
+        filename: `${styleSlug}-${subjectSlug}-${n}.png`,
+      })
+      n++
+    }
+  }
+  return images
+}
+
+// Lädt genau dieses eine Set (eine Generierung) als ZIP herunter.
+function HistorySetDownloadButton({
+  styleName,
+  subject,
+  imageIds,
+}: {
+  styleName: string
+  subject: string
+  imageIds: Array<string>
+}) {
+  const download = useMutation({
+    mutationFn: async () => {
+      const images = await loadSetImages(styleName, subject, imageIds)
+      await downloadImagesAsZip(images, `${styleName}-${subject}`)
+    },
+    onError: (err) => {
+      alert((err as Error).message)
+    },
+  })
+  return (
+    <button
+      type="button"
+      onClick={() => download.mutate()}
+      disabled={download.isPending}
+      title="Dieses Set als ZIP herunterladen"
+      className="text-muted-foreground hover:text-foreground shrink-0 rounded p-1 disabled:opacity-50"
+    >
+      <Download className="h-3.5 w-3.5" />
     </button>
   )
 }
