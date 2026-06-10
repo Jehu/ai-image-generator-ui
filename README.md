@@ -7,6 +7,14 @@ Image / „Nano Banana Pro") zu finden, zu fixieren und konsistent anzuwenden.
 in *Produktion* nur noch das Motiv beschreiben → optisch konsistente Bilder. Stile sind über
 Tags organisierbar und werden als strukturiertes JSON gespeichert.
 
+![Image Style Studio – Stil-Editor links, Produktion und Historie rechts](docs/screenshot.jpg)
+
+> Links wird der Stil als strukturiertes Formular/JSON fixiert (Kamera, Optik, Licht, Farbe …),
+> rechts beschreibt man nur noch das Motiv und erzeugt konsistente Varianten. Ergebnisse landen
+> in der Historie und öffnen sich in einer Lightbox mit Download:
+
+![Generiertes Ergebnis in der Lightbox](docs/screenshot-result.jpg)
+
 ## Setup
 
 ```bash
@@ -34,8 +42,9 @@ Den API-Key nach Änderung der `.env` neu laden → Dev-Server neu starten.
   halten den API-Key serverseitig.
 - **Prisma + SQLite** (`prisma/schema.prisma`) lokal. Für Team später: Provider auf
   `postgresql` + passenden Driver-Adapter in `src/db.ts`; Modell ist vorbereitet.
-- **Provider-Abstraktion** (`src/lib/providers/`): Gemini implementiert; Imagen/GPT-Image
-  später einsteckbar. `gemini-3-pro-image` via `@google/genai`.
+- **Provider-Abstraktion** (`src/lib/providers/`): Gemini (`gemini-3-pro-image` via
+  `@google/genai`) und OpenAI (`gpt-image-1`/`gpt-image-2` via `openai`) implementiert. Sind beide
+  API-Keys gesetzt, wählt man das Modell pro Generierung; Imagen o.Ä. später einsteckbar.
 - **Stil-Schema** (`src/lib/schema/photoStyle.ts`, Zod): Single Source of Truth für
   Formular + JSON-Validierung. `looseObject` → eigene JSON-Felder bleiben erhalten.
 - **Prompt-Kompilierung** (`src/lib/prompt/compile.ts`): fixiertes Stil-JSON + `subject` →
