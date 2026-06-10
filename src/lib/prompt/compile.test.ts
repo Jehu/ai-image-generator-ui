@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { compilePrompt } from './compile'
+import { compilePrompt, wrapPromptForCopy } from './compile'
 
 describe('compilePrompt', () => {
   it('verbindet Stil-Block mit subject', () => {
@@ -22,5 +22,24 @@ describe('compilePrompt', () => {
 
     const withoutRef = compilePrompt({ styleJson: { mood: 'calm' }, subject: 'x' })
     expect(withoutRef.promptObject.style_reference).toBeUndefined()
+  })
+})
+
+describe('wrapPromptForCopy', () => {
+  it('umschließt promptText mit Anweisung und Markdown-JSON-Fences', () => {
+    const { promptText } = compilePrompt({
+      styleJson: { mood: 'calm' },
+      subject: 'a red apple',
+    })
+    const wrapped = wrapPromptForCopy(promptText)
+
+    expect(wrapped).toBe(
+      `generate an image based on the following configuration\n\n\`\`\`json\n${promptText}\n\`\`\``,
+    )
+    expect(wrapped.startsWith('generate an image based on the following configuration\n\n')).toBe(
+      true,
+    )
+    expect(wrapped).toContain('```json\n')
+    expect(wrapped.endsWith('\n```')).toBe(true)
   })
 })

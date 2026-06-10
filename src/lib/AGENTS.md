@@ -16,7 +16,7 @@ Alle Dateien in `src/lib/` außer den drei Subdomains mit eigenem AGENTS.md.
 - `taxonomy.ts` enthält statische Preset-Listen für Foto (z. B. `CAMERA_BODIES`).
 - `presets.ts` enthält vordefinierte Foto-Stil-Vorlagen; `StylePreset.category` ist `string` (jede Bildart bringt eigene Kategorien mit).
 - `kinds/` (eigenes AGENTS.md) ist die **Bildart-Registry** — bündelt Schema/Felder/Presets pro `ImageKind`. `StyleEditor`/`PresetPicker` rendern generisch über `getKind(kind)`.
-- `prompt/compile.ts` ist die einzige Stelle, die `styleJson + subject → promptText` kompiliert. Diese Funktion nie duplizieren.
+- `prompt/compile.ts` ist die einzige Stelle, die `styleJson + subject → promptText` kompiliert. Diese Funktion nie duplizieren. Dort liegt auch `wrapPromptForCopy` (Anweisung + Markdown-`json`-Fences ums `promptText` zum Kopieren) — beide Kopier-Buttons (`PromptPreview`, `ResultGrid`) nutzen ausschließlich diesen Helfer.
 - `fileToDataUrl.ts` — **Browser-only** (nutzt `FileReader`, keine Node-Module). Stellt `fileToDataUrl` (File → Data-URL) und `parseDataUrl` (Data-URL → `{ mimeType, base64 }`) bereit. Nur aus React-Komponenten verwenden.
 - `export.ts` — **Browser-only** (nutzt `window`/`document`/`Blob`/`File`/`jszip`, keine Node-Module). Stellt `slugify`, `downloadImagesAsZip`, `downloadStyleAsJson`, `downloadStyleBriefAsMarkdown`, `readStyleImport` für Bild-ZIP-, Stil-JSON- und Style-Brief-Markdown-Export bereit. Nur aus React-Komponenten verwenden.
 

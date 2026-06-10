@@ -48,3 +48,13 @@ export function compilePrompt(input: CompileInput): CompileOutput {
     promptText: JSON.stringify(promptObject, null, 2),
   }
 }
+
+/** Einleitende Anweisung, die dem kopierten JSON-Prompt vorangestellt wird. */
+export const COPY_PROMPT_INSTRUCTION =
+  'generate an image based on the following configuration'
+
+/** Bringt einen kompilierten `promptText` in das Format zum Kopieren:
+ *  einleitende Anweisung + Leerzeile + JSON in Markdown-Code-Fences. */
+export function wrapPromptForCopy(promptText: string): string {
+  return `${COPY_PROMPT_INSTRUCTION}\n\n\`\`\`json\n${promptText}\n\`\`\``
+}
