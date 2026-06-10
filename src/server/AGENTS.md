@@ -20,6 +20,7 @@ Alle `.ts`-Dateien in diesem Verzeichnis.
 | Datei | Funktion |
 |---|---|
 | `generate.ts` | `generateImage` — Kern-Generierungsfunktion; lädt Anker, kompiliert Prompt, ruft Provider auf; persistiert bei Produce (`styleId` gesetzt) die Output-Bilder via Storage (`Image kind='output'`, `Generation.outputImageId`). Playground (ohne `styleId`) bleibt ephemer |
+| `analyze.ts` | `analyzeStyleFromImage` — extrahiert aus einem Bild (base64 + mimeType) den fotografischen Stil als `photoStyle`-JSON via Gemini-Vision (`GEMINI_ANALYSIS_MODEL`, Default `gemini-2.5-flash`); kein Motiv/`subject`; tolerante Validierung, Schema-Issues als `warnings` |
 | `styles.ts` | CRUD für `Style` + `StyleVersion`; `listGenerations` |
 | `images.ts` | `addAnchorImage`, `removeAnchorImage`, `getImageDataUrl` |
 | `cameras.ts` | `listCameraBodies`, `upsertCameraBody`, `deleteCameraBody` |

@@ -5,9 +5,14 @@ Dokument plant die drei als Nächstes gewählten Themen. **Reihenfolge-Empfehlun
 1. Output-Persistenz + Export (schließt Lücke, klein) → 2. Stil aus Referenzbild (hoher Nutzen,
 mittel) → 3. Illustrationen & Infografiken (großer Scope, Refactor).
 
-**Fortschritt:** ✅ **Feature A vollständig umgesetzt** (A1 Output-Persistenz, A2 Historie-Thumbnails,
-A3 ZIP-/Stil-Export + Stil-Import). Verifiziert: tsc + Build + 17 Tests grün, UI im Browser geprüft.
-**Nächster Punkt: Feature B — Stil aus Referenzbild ableiten.**
+**Fortschritt:**
+- ✅ **Feature A vollständig umgesetzt** (A1 Output-Persistenz, A2 Historie-Thumbnails,
+  A3 ZIP-/Stil-Export + Stil-Import). Verifiziert: tsc + Build + 17 Tests grün, UI im Browser geprüft.
+- ✅ **Feature B vollständig umgesetzt** (`analyzeStyleFromImage` in `src/server/analyze.ts` via
+  Gemini-Vision, Default-Modell `gemini-2.5-flash` über `GEMINI_ANALYSIS_MODEL`; UI „Stil aus Bild
+  ableiten" im Playground; geteilter Helper `src/lib/fileToDataUrl.ts`). Verifiziert: tsc + Build +
+  Tests + Lint grün. Hinweis: echter Vision-API-Call (Credits + reales Bild) noch manuell zu testen.
+**Nächster Punkt: Feature C — Illustrationen & Infografiken.**
 
 ## Architektur-Kontext (gilt für alle Features)
 

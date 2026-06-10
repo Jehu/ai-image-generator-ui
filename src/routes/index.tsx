@@ -1,7 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useMutation } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { generateImage } from '#/server/generate'
+import { analyzeStyleFromImage } from '#/server/analyze'
+import { fileToDataUrl, parseDataUrl } from '#/lib/fileToDataUrl'
 import { StyleEditor } from '#/components/StyleEditor'
 import { ResultGrid } from '#/components/ResultGrid'
 import { PromptPreview } from '#/components/PromptPreview'
@@ -59,10 +61,22 @@ function Playground() {
   const [count, setCount] = useState(2)
   const [thinkingLevel, setThinkingLevel] = useState<ThinkingLevelOpt>('high')
   const [saveOpen, setSaveOpen] = useState(false)
+  const analyzeFileRef = useRef<HTMLInputElement>(null)
 
   const mutation = useMutation({
     mutationFn: (vars: Parameters<typeof generateImage>[0]['data']) =>
       generateImage({ data: vars }),
+  })
+
+  const analyze = useMutation({
+    mutationFn: async (file: File) => {
+      const dataUrl = await fileToDataUrl(file)
+      const { mimeType, base64 } = parseDataUrl(dataUrl)
+      return analyzeStyleFromImage({ data: { imageBase64: base64, mimeType } })
+    },
+    onSuccess: (res) => {
+      setStyle(res.styleJson)
+    },
   })
 
   function handleGenerate() {
@@ -94,6 +108,46 @@ function Playground() {
                 setThinkingLevel(preset.params.thinkingLevel)
             }}
           />
+
+          {/* Stil aus Bild ableiten */}
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-2">
+              <input
+                ref={analyzeFileRef}
+                type="file"
+                accept="image/*"
+                hidden
+                onChange={(e) => {
+                  const file = e.target.files?.[0]
+                  if (file) analyze.mutate(file)
+                  e.target.value = ''
+                }}
+              />
+              <button
+                onClick={() => analyzeFileRef.current?.click()}
+                disabled={analyze.isPending}
+                className="rounded-md border px-4 py-2 text-sm font-medium disabled:opacity-50"
+                title="Fotografischen Stil aus einem Bild ableiten"
+              >
+                {analyze.isPending ? 'Analysiere Bild…' : 'Stil aus Bild ableiten'}
+              </button>
+            </div>
+            <p className="text-muted-foreground text-xs">
+              Analyse kostet Tokens (Bild-Input + JSON-Output) — grob wenige Cents
+              pro Analyse.
+            </p>
+            {analyze.isError && (
+              <p className="text-sm text-red-600">
+                Fehler: {(analyze.error).message}
+              </p>
+            )}
+            {analyze.data && analyze.data.warnings.length > 0 && (
+              <p className="text-xs text-amber-600">
+                {analyze.data.warnings.length} Feld(er) evtl. nachzubessern.
+              </p>
+            )}
+          </div>
+
           <StyleEditor value={style} onChange={setStyle} />
 
           <div>
@@ -181,7 +235,7 @@ function Playground() {
 
           {mutation.isError && (
             <p className="text-sm text-red-600">
-              Fehler: {(mutation.error as Error).message}
+              Fehler: {(mutation.error).message}
             </p>
           )}
         </div>

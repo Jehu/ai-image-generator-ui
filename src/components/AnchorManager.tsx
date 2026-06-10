@@ -1,15 +1,7 @@
 import { useRef } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { addAnchorImage, getStyleAnchors, removeAnchorImage } from '#/server/images'
-
-function fileToDataUrl(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => resolve(reader.result as string)
-    reader.onerror = reject
-    reader.readAsDataURL(file)
-  })
-}
+import { fileToDataUrl } from '#/lib/fileToDataUrl'
 
 export function AnchorManager({ styleId }: { styleId: string }) {
   const queryClient = useQueryClient()

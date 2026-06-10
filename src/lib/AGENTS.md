@@ -16,6 +16,7 @@ Alle Dateien in `src/lib/` außer den drei Subdomains mit eigenem AGENTS.md.
 - `taxonomy.ts` enthält statische Preset-Listen (z. B. `CAMERA_BODIES`).
 - `presets.ts` enthält vordefinierte Stil-Vorlagen für den `PresetPicker`.
 - `prompt/compile.ts` ist die einzige Stelle, die `styleJson + subject → promptText` kompiliert. Diese Funktion nie duplizieren.
+- `fileToDataUrl.ts` — **Browser-only** (nutzt `FileReader`, keine Node-Module). Stellt `fileToDataUrl` (File → Data-URL) und `parseDataUrl` (Data-URL → `{ mimeType, base64 }`) bereit. Nur aus React-Komponenten verwenden.
 - `export.ts` — **Browser-only** (nutzt `window`/`document`/`Blob`/`File`/`jszip`, keine Node-Module). Stellt `slugify`, `downloadImagesAsZip`, `downloadStyleAsJson`, `readStyleImport` für Bild-ZIP- und Stil-JSON-Im-/Export bereit. Nur aus React-Komponenten verwenden.
 
 ## Work Guidance
