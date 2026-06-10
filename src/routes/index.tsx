@@ -62,6 +62,10 @@ function Playground() {
   const [thinkingLevel, setThinkingLevel] = useState<ThinkingLevelOpt>('high')
   const [saveOpen, setSaveOpen] = useState(false)
   const analyzeFileRef = useRef<HTMLInputElement>(null)
+  // Feedback nach "Stil aus Bild ableiten": Ring-Flash am Editor + Banner.
+  const [flashing, setFlashing] = useState(false)
+  const [analysisDone, setAnalysisDone] = useState<{ fields: number } | null>(null)
+  const doneTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const mutation = useMutation({
     mutationFn: (vars: Parameters<typeof generateImage>[0]['data']) =>
@@ -76,6 +80,13 @@ function Playground() {
     },
     onSuccess: (res) => {
       setStyle(res.styleJson)
+      // Editor-Flash neu auslösen (false→true, Reset via onAnimationEnd).
+      setFlashing(false)
+      requestAnimationFrame(() => setFlashing(true))
+      // Erfolgs-Banner zeigen und nach kurzer Zeit automatisch ausblenden.
+      setAnalysisDone({ fields: Object.keys(res.styleJson).length })
+      if (doneTimer.current) clearTimeout(doneTimer.current)
+      doneTimer.current = setTimeout(() => setAnalysisDone(null), 5000)
     },
   })
 
@@ -148,7 +159,27 @@ function Playground() {
             )}
           </div>
 
-          <StyleEditor value={style} onChange={setStyle} />
+          {analysisDone && (
+            <div
+              role="status"
+              className="rise-in flex items-center gap-2 rounded-md border border-green-600/30 bg-green-600/10 px-3 py-2 text-sm text-green-700 dark:text-green-400"
+            >
+              <span aria-hidden className="text-base leading-none">
+                ✓
+              </span>
+              <span>
+                Stil aus Bild übernommen — {analysisDone.fields} Stil-Bereich(e)
+                ins Formular geladen.
+              </span>
+            </div>
+          )}
+
+          <div
+            className={flashing ? 'style-flash' : undefined}
+            onAnimationEnd={() => setFlashing(false)}
+          >
+            <StyleEditor value={style} onChange={setStyle} />
+          </div>
 
           <div>
             <label className="mb-1 block text-sm font-medium">Motiv (subject)</label>
