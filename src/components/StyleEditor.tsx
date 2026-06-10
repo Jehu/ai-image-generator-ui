@@ -8,8 +8,6 @@ import type { FieldDef, GroupDef } from '#/lib/schema/fields'
 import { InfoHint } from '#/components/InfoHint'
 import { CAMERA_BODIES } from '#/lib/taxonomy'
 import { listCameraBodies } from '#/server/cameras'
-
-type DynamicOptions = Record<string, ReadonlyArray<string | number>>
 import { validatePhotoStyle } from '#/lib/schema/photoStyle'
 import {
   formatList,
@@ -19,6 +17,8 @@ import {
   setGroupField,
   setTop,
 } from '#/lib/styleObject'
+
+type DynamicOptions = Record<string, ReadonlyArray<string | number>>
 
 const inputCls =
   'w-full rounded-md border bg-background p-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring'
@@ -45,7 +45,10 @@ export function StyleEditor({
   })
   const dynamicOptions: DynamicOptions = useMemo(() => {
     const defaults = CAMERA_BODIES as ReadonlyArray<string>
-    const merged = [...defaults, ...customBodies.filter((b) => !defaults.includes(b))]
+    const merged = [
+      ...defaults,
+      ...customBodies.filter((b) => !defaults.includes(b)),
+    ]
     return { body: merged }
   }, [customBodies])
 
@@ -65,7 +68,11 @@ export function StyleEditor({
       setJsonError((e as Error).message)
       return
     }
-    if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+    if (
+      typeof parsed !== 'object' ||
+      parsed === null ||
+      Array.isArray(parsed)
+    ) {
       setJsonError('JSON muss ein Objekt sein.')
       return
     }
@@ -132,7 +139,9 @@ export function StyleEditor({
             />
           )}
           {jsonError && (
-            <p className="mt-2 text-sm text-red-600">Ungültiges JSON: {jsonError}</p>
+            <p className="mt-2 text-sm text-red-600">
+              Ungültiges JSON: {jsonError}
+            </p>
           )}
           {!jsonError && issues.length > 0 && (
             <div className="mt-2 text-xs text-amber-600">
@@ -173,7 +182,9 @@ function GroupSection({
             def={def}
             value={getGroupField(value, group.key, def.key)}
             options={dynamicOptions?.[def.key] ?? def.options}
-            onChange={(v) => onChange(setGroupField(value, group.key, def.key, v))}
+            onChange={(v) =>
+              onChange(setGroupField(value, group.key, def.key, v))
+            }
           />
         ))}
       </div>
@@ -398,7 +409,9 @@ function TextAreaField({
         list={options ? listId : undefined}
         placeholder={placeholder}
         value={typeof value === 'string' ? value : ''}
-        onChange={(e) => onChange(e.target.value === '' ? undefined : e.target.value)}
+        onChange={(e) =>
+          onChange(e.target.value === '' ? undefined : e.target.value)
+        }
       />
       {options && (
         <datalist id={listId}>
@@ -425,7 +438,9 @@ function TabButton({
       type="button"
       onClick={onClick}
       className={`rounded px-3 py-1 text-sm font-medium ${
-        active ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
+        active
+          ? 'bg-background shadow-sm'
+          : 'text-muted-foreground hover:text-foreground'
       }`}
     >
       {children}

@@ -12,9 +12,9 @@ export interface SavedImage {
 }
 
 export interface StorageAdapter {
-  saveBase64(base64: string, mime: string): Promise<SavedImage>
-  readAsBase64(path: string): Promise<{ data: string; mime: string }>
-  remove(path: string): Promise<void>
+  saveBase64: (base64: string, mime: string) => Promise<SavedImage>
+  readAsBase64: (path: string) => Promise<{ data: string; mime: string }>
+  remove: (path: string) => Promise<void>
 }
 
 let cached: StorageAdapter | null = null

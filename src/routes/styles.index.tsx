@@ -8,7 +8,8 @@ import {
   listStyles,
 } from '#/server/styles'
 import { getImageDataUrl } from '#/server/images'
-import { readStyleImport, type StyleExport } from '#/lib/export'
+import { readStyleImport } from '#/lib/export'
+import type { StyleExport } from '#/lib/export'
 
 export const Route = createFileRoute('/styles/')({ component: StylesLibrary })
 
@@ -127,7 +128,10 @@ function StylesLibrary() {
           className="w-64 rounded-md border bg-background p-2 text-sm"
         />
         <div className="flex flex-wrap gap-1">
-          <TagChip active={activeTag === null} onClick={() => setActiveTag(null)}>
+          <TagChip
+            active={activeTag === null}
+            onClick={() => setActiveTag(null)}
+          >
             Alle
           </TagChip>
           {allTags.map((t) => (

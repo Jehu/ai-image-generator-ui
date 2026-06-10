@@ -86,9 +86,7 @@ export function SaveStyleDialog({
           </label>
 
           {mutation.isError && (
-            <p className="text-sm text-red-600">
-              {(mutation.error as Error).message}
-            </p>
+            <p className="text-sm text-red-600">{mutation.error.message}</p>
           )}
 
           <div className="mt-2 flex justify-end gap-2">

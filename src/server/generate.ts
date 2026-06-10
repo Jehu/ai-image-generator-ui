@@ -3,15 +3,9 @@ import type { Prisma } from '#/generated/prisma/client'
 import { getProvider } from '#/lib/providers'
 import { compilePrompt } from '#/lib/prompt/compile'
 import type { JsonObject } from '#/lib/json'
+import type { GenerateParams, ReferenceImage } from '#/lib/providers/types'
 
 const asJson = (v: unknown): Prisma.InputJsonValue => v as Prisma.InputJsonValue
-import type {
-  AspectRatio,
-  GenerateParams,
-  ImageSize,
-  ReferenceImage,
-  ThinkingLevelOpt,
-} from '#/lib/providers/types'
 
 export interface GenerateInput {
   styleJson: JsonObject
@@ -57,7 +51,9 @@ export const generateImage = createServerFn({ method: 'POST' })
     let usedAnchorIds: Array<string> = []
     if (data.styleId) {
       const { prisma } = await import('#/db')
-      const style = await prisma.style.findUnique({ where: { id: data.styleId } })
+      const style = await prisma.style.findUnique({
+        where: { id: data.styleId },
+      })
       const ids = (style?.anchorImageIds as Array<string> | undefined) ?? []
       usedAnchorIds = ids
       if (ids.length > 0) {
@@ -79,9 +75,9 @@ export const generateImage = createServerFn({ method: 'POST' })
     })
 
     const params: GenerateParams = {
-      aspectRatio: (data.params?.aspectRatio ?? '1:1') as AspectRatio,
-      imageSize: (data.params?.imageSize ?? '2K') as ImageSize,
-      thinkingLevel: data.params?.thinkingLevel as ThinkingLevelOpt | undefined,
+      aspectRatio: data.params?.aspectRatio ?? '1:1',
+      imageSize: data.params?.imageSize ?? '2K',
+      thinkingLevel: data.params?.thinkingLevel,
       count: data.params?.count ?? 1,
     }
 

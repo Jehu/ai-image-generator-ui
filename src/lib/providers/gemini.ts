@@ -73,7 +73,7 @@ async function generateOnce(
 
   const response = await ai.models.generateContent({
     model: modelId,
-    contents: [{ role: 'user', parts: parts as never }],
+    contents: [{ role: 'user', parts: parts }],
     config: {
       responseModalities: [Modality.TEXT, Modality.IMAGE],
       imageConfig: {
@@ -81,7 +81,11 @@ async function generateOnce(
         imageSize: params.imageSize ?? '2K',
       },
       ...(params.thinkingLevel
-        ? { thinkingConfig: { thinkingLevel: THINKING_MAP[params.thinkingLevel] } }
+        ? {
+            thinkingConfig: {
+              thinkingLevel: THINKING_MAP[params.thinkingLevel],
+            },
+          }
         : {}),
     },
   })
@@ -104,7 +108,7 @@ export const geminiProvider: ImageProvider = {
   async generate(req: GenerateRequest): Promise<GenerateResult> {
     const ai = getClient()
     const count = Math.max(1, Math.min(req.params?.count ?? 1, 4))
-    const size = (req.params?.imageSize ?? '2K') as ImageSize
+    const size = req.params?.imageSize ?? '2K'
 
     // N Varianten = N separate Calls (Gemini 3 Image liefert pro Call 1 Bild).
     const results = await Promise.all(

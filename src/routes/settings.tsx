@@ -27,7 +27,9 @@ function Settings() {
         <div className="flex flex-col gap-4">
           <Row label="Gemini API-Key">
             {data.hasApiKey ? (
-              <span className="text-green-600">gesetzt — {data.apiKeyMasked}</span>
+              <span className="text-green-600">
+                gesetzt — {data.apiKeyMasked}
+              </span>
             ) : (
               <span className="text-red-600">
                 nicht gesetzt — in <code>.env</code> eintragen (
@@ -42,9 +44,10 @@ function Settings() {
             <code>{data.databaseUrl}</code>
           </Row>
           <p className="text-muted-foreground mt-2 text-xs">
-            Der API-Key wird ausschließlich serverseitig (Server Functions) genutzt
-            und gelangt nie ins Frontend-Bundle. Änderungen am Key erfolgen in der{' '}
-            <code>.env</code>-Datei; danach den Dev-Server neu starten.
+            Der API-Key wird ausschließlich serverseitig (Server Functions)
+            genutzt und gelangt nie ins Frontend-Bundle. Änderungen am Key
+            erfolgen in der <code>.env</code>-Datei; danach den Dev-Server neu
+            starten.
           </p>
         </div>
       )}
@@ -111,9 +114,7 @@ function CameraBodiesSection() {
         </button>
       </div>
       {add.isError && (
-        <p className="mt-1 text-sm text-red-600">
-          {(add.error as Error).message}
-        </p>
+        <p className="mt-1 text-sm text-red-600">{add.error.message}</p>
       )}
 
       {custom.length > 0 && (
@@ -160,7 +161,13 @@ function CameraBodiesSection() {
   )
 }
 
-function Row({ label, children }: { label: string; children: React.ReactNode }) {
+function Row({
+  label,
+  children,
+}: {
+  label: string
+  children: React.ReactNode
+}) {
   return (
     <div className="flex items-center justify-between gap-4 rounded-md border p-3 text-sm">
       <span className="font-medium">{label}</span>

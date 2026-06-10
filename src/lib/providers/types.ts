@@ -63,5 +63,5 @@ export interface ModelDescriptor {
 export interface ImageProvider {
   id: string
   models: Array<ModelDescriptor>
-  generate(req: GenerateRequest): Promise<GenerateResult>
+  generate: (req: GenerateRequest) => Promise<GenerateResult>
 }
