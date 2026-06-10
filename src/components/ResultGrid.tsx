@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Check, Copy } from 'lucide-react'
 import { copyText } from '#/lib/clipboard'
+import { wrapPromptForCopy } from '#/lib/prompt/compile'
 import { Lightbox } from './Lightbox'
 
 export interface ResultImage {
@@ -15,7 +16,7 @@ function CopyPromptButton({ text }: { text: string }) {
       type="button"
       onClick={(e) => {
         e.preventDefault()
-        copyText(text).then((ok) => {
+        copyText(wrapPromptForCopy(text)).then((ok) => {
           if (ok) {
             setCopied(true)
             setTimeout(() => setCopied(false), 1500)

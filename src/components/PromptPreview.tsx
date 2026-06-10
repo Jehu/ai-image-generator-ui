@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Check, Copy } from 'lucide-react'
-import { compilePrompt } from '#/lib/prompt/compile'
+import { compilePrompt, wrapPromptForCopy } from '#/lib/prompt/compile'
 import { copyText } from '#/lib/clipboard'
 import type { JsonObject } from '#/lib/json'
 import type { ImageKind } from '#/lib/kinds'
@@ -34,7 +34,7 @@ export function PromptPreview({
   const [copied, setCopied] = useState(false)
 
   async function copy() {
-    if (await copyText(promptText)) {
+    if (await copyText(wrapPromptForCopy(promptText))) {
       setCopied(true)
       setTimeout(() => setCopied(false), 1500)
     }
