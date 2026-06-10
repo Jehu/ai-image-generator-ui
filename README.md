@@ -15,6 +15,46 @@ Tags organisierbar und werden als strukturiertes JSON gespeichert.
 
 ![Generiertes Ergebnis in der Lightbox](docs/screenshot-result.jpg)
 
+## Wofür ist das?
+
+KI-Bildmodelle liefern beim selben Prompt jedes Mal einen leicht anderen Look — ein Problem,
+sobald man eine **einheitliche Bildsprache** braucht (Blog, Shop, Social Media, Markenauftritt).
+Image Style Studio trennt **Stil** von **Motiv**: Du legst den fotografischen Look *einmal* fest
+(Kamera, Optik, Licht, Farbe, Stimmung …), speicherst ihn und wendest ihn auf beliebig viele
+Motive an — so wirken alle Bilder „wie aus einer Serie", statt zufällig zusammengewürfelt.
+
+**Für wen:** Content-Creator, Marketing- und Social-Media-Teams, Blogger, Shop-Betreiber und
+Agenturen — alle, die regelmäßig konsistente, markenkonforme KI-Bilder brauchen, ohne bei jedem
+Bild den Prompt neu zu tüfteln.
+
+## Was du damit machen kannst
+
+- **Stile definieren** — den Look als strukturiertes Formular *oder* JSON festlegen: Kamera-Body,
+  Brennweite, Blende, Licht-Setup, Farbpalette, Film-Emulation, Stimmung, Negativ-Guards.
+- **Stil aus einem Bild ableiten** — ein vorhandenes (Kunden-)Foto hochladen; eine Vision-Analyse
+  füllt das Stil-Formular automatisch vor und trifft Marken-Looks schnell.
+- **Konsistenz über Anker** — Referenzbilder an einen Stil pinnen; sie werden bei jeder Produktion
+  mitgeschickt und heben die optische Konsistenz deutlich an (siehe unten).
+- **In Produktion gehen** — gespeicherten Stil wählen, nur noch Motive beschreiben (eine pro Zeile
+  = Stapel) und konsistente Varianten erzeugen.
+- **Modell wählen** — Google Gemini (Nano Banana Pro) und OpenAI (GPT Image); sind beide API-Keys
+  gesetzt, lässt sich das Modell pro Generierung umschalten.
+- **Bibliothek** — Stile taggen, durchsuchen, duplizieren und versionieren.
+- **Ergebnisse verwalten** — Historie mit Vorschau, Lightbox, Original-Download, Stapel-Download
+  als ZIP und Kostenanzeige pro Lauf.
+- **Teilen & sichern** — Stile als JSON exportieren und wieder importieren.
+
+### Typische Anwendungsfälle
+
+- Einheitliche **Blog-Header** über viele Artikel hinweg.
+- **Produktbilder** im gleichen Studio-Look.
+- Eine **Social-Media-Serie** mit wiedererkennbarer Ästhetik.
+- Einen **Marken- oder Kunden-Look** schnell treffen — per „Stil aus Bild ableiten".
+
+> Hinweis: Du brauchst einen eigenen API-Key (Google Gemini, optional OpenAI). Generierungen
+> laufen über deinen Account und verursachen die jeweiligen Anbieterkosten; die geschätzten
+> Kosten pro Lauf werden angezeigt.
+
 ## Setup
 
 ```bash
