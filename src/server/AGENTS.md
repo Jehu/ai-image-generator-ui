@@ -21,7 +21,8 @@ Alle `.ts`-Dateien in diesem Verzeichnis.
 |---|---|
 | `generate.ts` | `generateImage` — Kern-Generierungsfunktion; lädt Anker, kompiliert Prompt, ruft Provider auf; persistiert bei Produce (`styleId` gesetzt) die Output-Bilder via Storage (`Image kind='output'`, `Generation.outputImageId`). Playground (ohne `styleId`) bleibt ephemer |
 | `analyze.ts` | `analyzeStyleFromImage` — extrahiert aus einem Bild (base64 + mimeType) den fotografischen Stil als `photoStyle`-JSON via Gemini-Vision (`GEMINI_ANALYSIS_MODEL`, Default `gemini-2.5-flash`); kein Motiv/`subject`; tolerante Validierung, Schema-Issues als `warnings` |
-| `styles.ts` | CRUD für `Style` + `StyleVersion`; `listGenerations` |
+| `styleBrief.ts` | `buildStyleBrief(styleJson, kind?)` — erzeugt aus dem Stil-JSON einen englischen Markdown-Style-Brief (Prosa) via Gemini-Text (`GEMINI_BRIEF_MODEL`, Default `gemini-2.5-flash`); `hashStyleJson`/`canonicalStringify` für den Source-Hash; `compileStyleBrief` als Client-Server-Function. Leerer Stil → leerer Brief (kein API-Call) |
+| `styles.ts` | CRUD für `Style` + `StyleVersion`; `listGenerations`. Generiert beim `createStyle`/`updateStyle` den Style-Brief (best-effort, blockiert Speichern nicht); regeneriert nur bei geändertem `briefSourceHash` |
 | `images.ts` | `addAnchorImage`, `removeAnchorImage`, `getImageDataUrl` |
 | `cameras.ts` | `listCameraBodies`, `upsertCameraBody`, `deleteCameraBody` |
 | `settings.ts` | `getSettingsInfo` — API-Key-Status (Gemini + OpenAI, maskiert), Bild-Speicher, DB |

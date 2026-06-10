@@ -12,6 +12,27 @@ const asJson = (v: unknown): Prisma.InputJsonValue => v as Prisma.InputJsonValue
 // `fileURLToPath`) aus dem Browser-Bundle heraus.
 const db = async () => (await import('#/db')).prisma
 
+// Markdown-Style-Brief + Source-Hash synchron zum styleJson erzeugen.
+// Best-effort: Bei API-/Key-Fehlern wird der Speichervorgang NICHT blockiert —
+// dann fehlt der Brief (Hash bleibt ungesetzt, sodass beim nächsten Speichern
+// erneut versucht wird).
+async function generateBriefFields(
+  styleJson: JsonObject,
+  kind: ImageKind,
+): Promise<{ styleBrief: string | null; briefSourceHash: string | null }> {
+  try {
+    const { buildStyleBrief, hashStyleJson } = await import('#/server/styleBrief')
+    const [styleBrief, briefSourceHash] = await Promise.all([
+      buildStyleBrief(styleJson, kind),
+      hashStyleJson(styleJson),
+    ])
+    return { styleBrief: styleBrief || null, briefSourceHash }
+  } catch (err) {
+    console.error('Style-Brief-Generierung übersprungen:', err)
+    return { styleBrief: null, briefSourceHash: null }
+  }
+}
+
 // ---------- Mapper (Prisma-Row -> serialisierbares DTO) ----------
 
 type StyleRow = {
@@ -21,6 +42,7 @@ type StyleRow = {
   kind: string
   tags: unknown
   styleJson: unknown
+  styleBrief: string | null
   schemaVersion: number
   version: number
   provider: string
@@ -39,6 +61,7 @@ function toStyleDTO(s: StyleRow): StyleDTO {
     kind: asImageKind(s.kind),
     tags: (s.tags as Array<string>) ?? [],
     styleJson: (s.styleJson as JsonObject) ?? {},
+    styleBrief: s.styleBrief ?? null,
     schemaVersion: s.schemaVersion,
     version: s.version,
     provider: s.provider,
@@ -118,13 +141,17 @@ export const createStyle = createServerFn({ method: 'POST' })
   })
   .handler(async ({ data }): Promise<StyleDTO> => {
     const prisma = await db()
+    const kind = asImageKind(data.kind)
+    const brief = await generateBriefFields(data.styleJson, kind)
     const row = await prisma.style.create({
       data: {
         name: data.name.trim(),
         description: data.description ?? null,
-        kind: asImageKind(data.kind),
+        kind,
         tags: asJson(data.tags ?? []),
         styleJson: asJson(data.styleJson),
+        styleBrief: brief.styleBrief,
+        briefSourceHash: brief.briefSourceHash,
         defaultParams: asJson(data.defaultParams ?? {}),
         anchorImageIds: asJson(data.anchorImageIds ?? []),
         provider: data.provider ?? 'gemini',
@@ -153,6 +180,22 @@ export const updateStyle = createServerFn({ method: 'POST' })
       JSON.stringify(data.styleJson) !== JSON.stringify(current.styleJson)
     const nextVersion = styleChanged ? current.version + 1 : current.version
 
+    // Style-Brief nur dann neu generieren, wenn sich das styleJson wirklich
+    // geändert hat (oder noch kein Brief existiert) — spart API-Calls bei reinen
+    // Namens-/Tag-Änderungen.
+    let briefFields: {
+      styleBrief: string | null
+      briefSourceHash: string | null
+    } | null = null
+    if (data.styleJson !== undefined) {
+      const { hashStyleJson } = await import('#/server/styleBrief')
+      const nextHash = await hashStyleJson(data.styleJson)
+      if (nextHash !== current.briefSourceHash || current.styleBrief === null) {
+        const kind = data.kind !== undefined ? asImageKind(data.kind) : asImageKind(current.kind)
+        briefFields = await generateBriefFields(data.styleJson, kind)
+      }
+    }
+
     const row = await prisma.style.update({
       where: { id: data.id },
       data: {
@@ -161,6 +204,12 @@ export const updateStyle = createServerFn({ method: 'POST' })
         ...(data.kind !== undefined ? { kind: asImageKind(data.kind) } : {}),
         ...(data.tags !== undefined ? { tags: asJson(data.tags) } : {}),
         ...(data.styleJson !== undefined ? { styleJson: asJson(data.styleJson) } : {}),
+        ...(briefFields !== null
+          ? {
+              styleBrief: briefFields.styleBrief,
+              briefSourceHash: briefFields.briefSourceHash,
+            }
+          : {}),
         ...(data.defaultParams !== undefined
           ? { defaultParams: asJson(data.defaultParams) }
           : {}),
@@ -203,6 +252,8 @@ export const duplicateStyle = createServerFn({ method: 'POST' })
         kind: asImageKind(src.kind),
         tags: asJson(src.tags ?? []),
         styleJson: asJson(src.styleJson ?? {}),
+        styleBrief: src.styleBrief, // Brief gilt fürs identische styleJson weiter
+        briefSourceHash: src.briefSourceHash,
         defaultParams: asJson(src.defaultParams ?? {}),
         anchorImageIds: asJson([]), // Anker werden nicht mitkopiert
         provider: src.provider,

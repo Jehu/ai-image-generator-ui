@@ -108,6 +108,15 @@ export function downloadStyleAsJson(style: StyleExport): void {
   triggerDownload(blob, slugify(style.name) + '.json')
 }
 
+/** Lädt den Style-Brief als <slug>.md herunter. */
+export function downloadStyleBriefAsMarkdown(
+  name: string,
+  brief: string,
+): void {
+  const blob = new Blob([brief], { type: 'text/markdown;charset=utf-8' })
+  triggerDownload(blob, slugify(name) + '.md')
+}
+
 /** Liest eine importierte .json-Datei und validiert die Grundstruktur. Wirft bei Fehlern. */
 export async function readStyleImport(file: File): Promise<StyleExport> {
   let parsed: unknown
