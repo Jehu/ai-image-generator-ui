@@ -9,18 +9,16 @@ import {
   updateStyle,
 } from '#/server/styles'
 import { addAnchorImage, getImageDataUrl } from '#/server/images'
-import {
-  downloadImagesAsZip,
-  downloadStyleAsJson,
-  slugify,
-  type ExportImage,
-} from '#/lib/export'
+import { downloadImagesAsZip, downloadStyleAsJson, slugify } from '#/lib/export'
+import type { ExportImage } from '#/lib/export'
 import { StyleEditor } from '#/components/StyleEditor'
 import { AnchorManager } from '#/components/AnchorManager'
 import type { ResultImage } from '#/components/ResultGrid'
 import { ResultGrid } from '#/components/ResultGrid'
+import { Lightbox } from '#/components/Lightbox'
 import { PromptPreview } from '#/components/PromptPreview'
 import { parseList } from '#/lib/styleObject'
+import { parseDataUrl } from '#/lib/fileToDataUrl'
 import type { JsonObject } from '#/lib/json'
 import type {
   AspectRatio,
@@ -42,7 +40,12 @@ const ASPECT_RATIOS: Array<AspectRatio> = [
   '21:9',
 ]
 const IMAGE_SIZES: Array<ImageSize> = ['1K', '2K', '4K']
-const THINKING_LEVELS: Array<ThinkingLevelOpt> = ['minimal', 'low', 'medium', 'high']
+const THINKING_LEVELS: Array<ThinkingLevelOpt> = [
+  'minimal',
+  'low',
+  'medium',
+  'high',
+]
 
 interface MotifResult {
   subject: string
@@ -95,6 +98,31 @@ function StyleDetail() {
 
   const [subjects, setSubjects] = useState('')
   const [results, setResults] = useState<Array<MotifResult>>([])
+  // Lightbox für Historie-Bilder (alle Output-Bilder einer Generierung).
+  const [lightboxImages, setLightboxImages] =
+    useState<Array<ResultImage> | null>(null)
+  const [lightboxIndex, setLightboxIndex] = useState(0)
+
+  async function openHistoryLightbox(imageIds: Array<string>) {
+    const loaded = await Promise.all(
+      imageIds.map((imgId) =>
+        queryClient.fetchQuery({
+          queryKey: ['image', imgId],
+          queryFn: () => getImageDataUrl({ data: { id: imgId } }),
+        }),
+      ),
+    )
+    const images = loaded
+      .filter((r): r is { dataUrl: string } => !!r)
+      .map((r) => ({
+        dataUrl: r.dataUrl,
+        mimeType: parseDataUrl(r.dataUrl).mimeType,
+      }))
+    if (images.length > 0) {
+      setLightboxIndex(0)
+      setLightboxImages(images)
+    }
+  }
 
   const save = useMutation({
     mutationFn: () =>
@@ -115,7 +143,8 @@ function StyleDetail() {
   })
 
   const setAnchor = useMutation({
-    mutationFn: (dataUrl: string) => addAnchorImage({ data: { styleId: id, dataUrl } }),
+    mutationFn: (dataUrl: string) =>
+      addAnchorImage({ data: { styleId: id, dataUrl } }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['anchors', id] })
       queryClient.invalidateQueries({ queryKey: ['styles'] })
@@ -171,7 +200,7 @@ function StyleDetail() {
       await downloadImagesAsZip(images, style.name)
     },
     onError: (err) => {
-      alert((err as Error).message)
+      alert(err.message)
     },
   })
 
@@ -191,7 +220,8 @@ function StyleDetail() {
     })
   }
 
-  if (isLoading) return <p className="p-6 text-sm text-muted-foreground">Lade…</p>
+  if (isLoading)
+    return <p className="p-6 text-sm text-muted-foreground">Lade…</p>
   if (!style)
     return (
       <div className="p-6">
@@ -202,7 +232,10 @@ function StyleDetail() {
       </div>
     )
 
-  const motifLines = subjects.split('\n').map((s) => s.trim()).filter(Boolean)
+  const motifLines = subjects
+    .split('\n')
+    .map((s) => s.trim())
+    .filter(Boolean)
   const motifCount = motifLines.length
   const firstMotif = motifLines[0] ?? ''
   const hasAnchors = style.anchorImageIds.length > 0
@@ -211,7 +244,10 @@ function StyleDetail() {
     <div className="mx-auto max-w-7xl p-6">
       <header className="mb-6 flex items-center justify-between">
         <div>
-          <Link to="/styles" className="text-muted-foreground text-sm hover:underline">
+          <Link
+            to="/styles"
+            className="text-muted-foreground text-sm hover:underline"
+          >
             ← Bibliothek
           </Link>
           <h1 className="text-2xl font-bold">{style.name}</h1>
@@ -249,10 +285,30 @@ function StyleDetail() {
           <AnchorManager styleId={id} />
 
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <ParamSelect label="Format" value={aspectRatio} options={ASPECT_RATIOS} onChange={(v) => setAspectRatio(v as AspectRatio)} />
-            <ParamSelect label="Größe" value={imageSize} options={IMAGE_SIZES} onChange={(v) => setImageSize(v as ImageSize)} />
-            <ParamSelect label="Varianten" value={String(count)} options={['1', '2', '3', '4']} onChange={(v) => setCount(Number(v))} />
-            <ParamSelect label="Thinking" value={thinkingLevel} options={THINKING_LEVELS} onChange={(v) => setThinkingLevel(v as ThinkingLevelOpt)} />
+            <ParamSelect
+              label="Format"
+              value={aspectRatio}
+              options={ASPECT_RATIOS}
+              onChange={(v) => setAspectRatio(v as AspectRatio)}
+            />
+            <ParamSelect
+              label="Größe"
+              value={imageSize}
+              options={IMAGE_SIZES}
+              onChange={(v) => setImageSize(v as ImageSize)}
+            />
+            <ParamSelect
+              label="Varianten"
+              value={String(count)}
+              options={['1', '2', '3', '4']}
+              onChange={(v) => setCount(Number(v))}
+            />
+            <ParamSelect
+              label="Thinking"
+              value={thinkingLevel}
+              options={THINKING_LEVELS}
+              onChange={(v) => setThinkingLevel(v as ThinkingLevelOpt)}
+            />
           </div>
 
           <div className="flex flex-wrap gap-2">
@@ -261,7 +317,9 @@ function StyleDetail() {
               disabled={save.isPending}
               className="rounded-md border px-4 py-2 text-sm font-medium disabled:opacity-50"
             >
-              {save.isPending ? 'Speichere…' : 'Stil-Änderungen speichern (neue Version)'}
+              {save.isPending
+                ? 'Speichere…'
+                : 'Stil-Änderungen speichern (neue Version)'}
             </button>
             <button
               onClick={handleExportStyle}
@@ -305,7 +363,9 @@ function StyleDetail() {
 
         {/* Produce */}
         <div className="flex min-w-0 flex-col gap-4">
-          <h2 className="text-sm font-semibold">Produktion — nur Motiv beschreiben</h2>
+          <h2 className="text-sm font-semibold">
+            Produktion — nur Motiv beschreiben
+          </h2>
           <label className="block text-sm">
             <span className="mb-1 block text-xs font-medium">
               Motive (eine pro Zeile für Batch)
@@ -313,7 +373,9 @@ function StyleDetail() {
             <textarea
               value={subjects}
               onChange={(e) => setSubjects(e.target.value)}
-              placeholder={'a barista pouring latte art\na laptop on a marble desk\nfresh croissants on a plate'}
+              placeholder={
+                'a barista pouring latte art\na laptop on a marble desk\nfresh croissants on a plate'
+              }
               className="h-28 w-full resize-y rounded-md border bg-background p-3 text-sm"
             />
           </label>
@@ -340,7 +402,7 @@ function StyleDetail() {
           </button>
           {generate.isError && (
             <p className="text-sm text-red-600">
-              Fehler: {(generate.error as Error).message}
+              Fehler: {generate.error.message}
             </p>
           )}
 
@@ -396,7 +458,10 @@ function StyleDetail() {
                     className="flex items-center gap-2 rounded border px-2 py-1"
                   >
                     {h.outputImageIds[0] && (
-                      <HistoryThumb imageId={h.outputImageIds[0]} />
+                      <HistoryThumb
+                        imageId={h.outputImageIds[0]}
+                        onOpen={() => openHistoryLightbox(h.outputImageIds)}
+                      />
                     )}
                     <span className="min-w-0 flex-1 truncate">{h.subject}</span>
                     <span className="text-muted-foreground shrink-0">
@@ -410,25 +475,44 @@ function StyleDetail() {
           </div>
         </div>
       </div>
+      {lightboxImages && (
+        <Lightbox
+          images={lightboxImages}
+          index={lightboxIndex}
+          onIndexChange={setLightboxIndex}
+          onClose={() => setLightboxImages(null)}
+        />
+      )}
     </div>
   )
 }
 
 // Kleines Thumbnail des ersten Output-Bilds einer Generierung.
-function HistoryThumb({ imageId }: { imageId: string }) {
+function HistoryThumb({
+  imageId,
+  onOpen,
+}: {
+  imageId: string
+  onOpen: () => void
+}) {
   const { data } = useQuery({
     queryKey: ['image', imageId],
     queryFn: () => getImageDataUrl({ data: { id: imageId } }),
   })
   if (!data) return null
   return (
-    <a href={data.dataUrl} target="_blank" rel="noreferrer" className="shrink-0">
+    <button
+      type="button"
+      onClick={onOpen}
+      title="Vergrößern"
+      className="shrink-0 cursor-pointer"
+    >
       <img
         src={data.dataUrl}
         alt=""
         className="h-10 w-10 rounded object-cover shrink-0"
       />
-    </a>
+    </button>
   )
 }
 
