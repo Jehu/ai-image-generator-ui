@@ -10,6 +10,16 @@ const MIME_EXT: Record<string, string> = {
   'image/webp': 'webp',
 }
 
+/** Kompakter, lesbarer Zeitstempel YYYYMMDD-HHMMSS (lokale Zeit). */
+function timestamp(): string {
+  const d = new Date()
+  const p = (n: number) => String(n).padStart(2, '0')
+  return (
+    `${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}` +
+    `-${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`
+  )
+}
+
 /**
  * Vollbild-Lightbox für generierte Bilder. Mehrere Bilder sind per Pfeil-Buttons
  * und Pfeiltasten durchklickbar; ein Download-Icon unten rechts lädt das
@@ -52,9 +62,11 @@ export function Lightbox({
   const current = images[index]
 
   function download() {
+    // Eindeutiger Dateiname pro Download (Zeitstempel + Bildindex), damit sich
+    // Downloads aus verschiedenen Generierungen nicht überschreiben.
     downloadDataUrl(
       current.dataUrl,
-      `image-${index + 1}.${MIME_EXT[current.mimeType] ?? 'png'}`,
+      `image-${timestamp()}-${index + 1}.${MIME_EXT[current.mimeType] ?? 'png'}`,
     )
   }
 
@@ -89,10 +101,7 @@ export function Lightbox({
         </button>
       )}
 
-      <div
-        className="relative max-h-full"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="relative max-h-full" onClick={(e) => e.stopPropagation()}>
         <img
           src={current.dataUrl}
           alt={`Variante ${index + 1}`}
