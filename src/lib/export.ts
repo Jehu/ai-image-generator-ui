@@ -3,6 +3,7 @@
 // Node-Module. Nur in React-Komponenten verwenden.
 import JSZip from 'jszip'
 
+import { parseDataUrl } from '#/lib/fileToDataUrl'
 import type { JsonObject } from '#/lib/json'
 
 /** "Mein Cooler Stil!" -> "mein-cooler-stil". Leerstring-fallback "export". */
@@ -31,8 +32,28 @@ function triggerDownload(blob: Blob, filename: string): void {
   a.style.display = 'none'
   document.body.appendChild(a)
   a.click()
-  document.body.removeChild(a)
-  URL.revokeObjectURL(url)
+  // Aufräumen erst im nächsten Tick: ein synchrones revokeObjectURL kann den
+  // gerade gestarteten Download großer Blobs abbrechen.
+  setTimeout(() => {
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }, 0)
+}
+
+/**
+ * Lädt eine (ggf. mehrere MB große) Data-URL zuverlässig herunter, indem sie
+ * in einen Blob umgewandelt wird. Der native `download` auf
+ * `<a href="data:...">` ist bei großen Bildern (2K/4K) unzuverlässig — Browser
+ * ignorieren oder blockieren übergroße data:-URLs teilweise.
+ */
+export function downloadDataUrl(dataUrl: string, filename: string): void {
+  const { mimeType, base64 } = parseDataUrl(dataUrl)
+  const binary = atob(base64)
+  const bytes = new Uint8Array(binary.length)
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i)
+  }
+  triggerDownload(new Blob([bytes], { type: mimeType }), filename)
 }
 
 /** Packt die Bilder als ZIP und triggert den Browser-Download (<zipBasename>.zip). */
