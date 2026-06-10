@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Check, Copy } from 'lucide-react'
 import { copyText } from '#/lib/clipboard'
+import { Lightbox } from './Lightbox'
 
 export interface ResultImage {
   dataUrl: string
@@ -48,6 +49,8 @@ export function ResultGrid({
   /** wenn gesetzt: Button „Als Anker" pro Bild */
   onSetAnchor?: (dataUrl: string) => void
 }) {
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
@@ -59,18 +62,18 @@ export function ResultGrid({
       <div className="grid grid-cols-2 gap-3">
         {images.map((img, i) => (
           <div key={i} className="group relative overflow-hidden rounded-md border">
-            <a
-              href={img.dataUrl}
-              download={`image-${i + 1}.png`}
-              className="block transition hover:opacity-90"
-              title="Klicken zum Herunterladen"
+            <button
+              type="button"
+              onClick={() => setLightboxIndex(i)}
+              className="block w-full cursor-pointer transition hover:opacity-90"
+              title="Klicken zum Vergrößern"
             >
               <img
                 src={img.dataUrl}
                 alt={`Variante ${i + 1}`}
                 className="h-full w-full object-cover"
               />
-            </a>
+            </button>
             {onSetAnchor && (
               <button
                 onClick={() => onSetAnchor(img.dataUrl)}
@@ -93,6 +96,14 @@ export function ResultGrid({
             {promptText}
           </pre>
         </details>
+      )}
+      {lightboxIndex !== null && (
+        <Lightbox
+          images={images}
+          index={lightboxIndex}
+          onIndexChange={setLightboxIndex}
+          onClose={() => setLightboxIndex(null)}
+        />
       )}
     </div>
   )

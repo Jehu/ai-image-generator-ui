@@ -20,7 +20,8 @@ Alle `.tsx`-Dateien in diesem Verzeichnis.
 |---|---|
 | `StyleEditor.tsx` | Haupt-Editor mit Formular- und JSON-Tab; rendert Gruppen aus `src/lib/schema/fields.ts` |
 | `AnchorManager.tsx` | Anker-Bilder eines Stils anzeigen, hinzufügen, entfernen |
-| `ResultGrid.tsx` | Generierungs-Ergebnisse als Bildgitter; „Als Anker setzen"-Aktion |
+| `ResultGrid.tsx` | Generierungs-Ergebnisse als Bildgitter; Klick öffnet die `Lightbox`; „Als Anker setzen"-Aktion |
+| `Lightbox.tsx` | Vollbild-Ansicht generierter Bilder (Portal); Navigation per Pfeil/Tasten, Download des Originalbildes via `downloadDataUrl` aus `#/lib/export` |
 | `SaveStyleDialog.tsx` | Dialog zum Speichern des aktuellen Stils aus dem Playground |
 | `PromptPreview.tsx` | Echtzeit-Vorschau des kompilierten Prompts (via `compilePrompt`) |
 | `PresetPicker.tsx` | Vorauswahl gespeicherter Stile für den Playground |
