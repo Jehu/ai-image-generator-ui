@@ -18,7 +18,7 @@ Alle Dateien in `src/lib/` außer den drei Subdomains mit eigenem AGENTS.md.
 - `kinds/` (eigenes AGENTS.md) ist die **Bildart-Registry** — bündelt Schema/Felder/Presets pro `ImageKind`. `StyleEditor`/`PresetPicker` rendern generisch über `getKind(kind)`.
 - `prompt/compile.ts` ist die einzige Stelle, die `styleJson + subject → promptText` kompiliert. Diese Funktion nie duplizieren.
 - `fileToDataUrl.ts` — **Browser-only** (nutzt `FileReader`, keine Node-Module). Stellt `fileToDataUrl` (File → Data-URL) und `parseDataUrl` (Data-URL → `{ mimeType, base64 }`) bereit. Nur aus React-Komponenten verwenden.
-- `export.ts` — **Browser-only** (nutzt `window`/`document`/`Blob`/`File`/`jszip`, keine Node-Module). Stellt `slugify`, `downloadImagesAsZip`, `downloadStyleAsJson`, `readStyleImport` für Bild-ZIP- und Stil-JSON-Im-/Export bereit. Nur aus React-Komponenten verwenden.
+- `export.ts` — **Browser-only** (nutzt `window`/`document`/`Blob`/`File`/`jszip`, keine Node-Module). Stellt `slugify`, `downloadImagesAsZip`, `downloadStyleAsJson`, `downloadStyleBriefAsMarkdown`, `readStyleImport` für Bild-ZIP-, Stil-JSON- und Style-Brief-Markdown-Export bereit. Nur aus React-Komponenten verwenden.
 
 ## Work Guidance
 

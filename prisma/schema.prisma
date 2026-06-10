@@ -22,6 +22,8 @@ model Style {
   kind          String   @default("foto") // Bildart: foto | illustration | infografik
   tags          Json // string[]
   styleJson     Json // fixierter Parameter-Block (ohne subject)
+  styleBrief      String? // LLM-generierter Markdown-Style-Brief (Prosa, synchron zu styleJson)
+  briefSourceHash String? // SHA-256 des kanonischen styleJson — Brief nur bei echter Änderung neu generieren
   schemaVersion Int      @default(1)
   version       Int      @default(1) // Prompt-Versionierung des Stils
   provider      String   @default("gemini")

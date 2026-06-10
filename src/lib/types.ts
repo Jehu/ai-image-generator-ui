@@ -11,6 +11,8 @@ export interface StyleDTO {
   kind: ImageKind
   tags: Array<string>
   styleJson: JsonObject
+  /** LLM-generierter Markdown-Style-Brief (Prosa); null wenn (noch) keiner erzeugt wurde. */
+  styleBrief: string | null
   schemaVersion: number
   version: number
   provider: string

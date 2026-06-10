@@ -9,7 +9,12 @@ import {
   updateStyle,
 } from '#/server/styles'
 import { addAnchorImage, getImageDataUrl } from '#/server/images'
-import { downloadImagesAsZip, downloadStyleAsJson, slugify } from '#/lib/export'
+import {
+  downloadImagesAsZip,
+  downloadStyleAsJson,
+  downloadStyleBriefAsMarkdown,
+  slugify,
+} from '#/lib/export'
 import type { ExportImage } from '#/lib/export'
 import { StyleEditor } from '#/components/StyleEditor'
 import { AnchorManager } from '#/components/AnchorManager'
@@ -348,9 +353,35 @@ function StyleDetail() {
             >
               Stil als JSON exportieren
             </button>
+            <button
+              onClick={() =>
+                style.styleBrief &&
+                downloadStyleBriefAsMarkdown(name, style.styleBrief)
+              }
+              disabled={!style.styleBrief}
+              className="rounded-md border px-3 py-1 text-xs font-medium disabled:opacity-50"
+              title={
+                style.styleBrief
+                  ? 'Style-Brief als Markdown herunterladen'
+                  : 'Noch kein Style-Brief — Stil speichern, um einen zu erzeugen'
+              }
+            >
+              Style-Brief (.md)
+            </button>
           </div>
           {save.isSuccess && (
             <p className="text-xs text-green-600">Gespeichert.</p>
+          )}
+
+          {style.styleBrief && (
+            <details className="rounded-md border p-3 text-sm">
+              <summary className="cursor-pointer font-semibold">
+                Style-Brief (Markdown)
+              </summary>
+              <pre className="mt-2 max-h-80 overflow-auto whitespace-pre-wrap text-xs text-muted-foreground">
+                {style.styleBrief}
+              </pre>
+            </details>
           )}
 
           {versions.length > 1 && (
