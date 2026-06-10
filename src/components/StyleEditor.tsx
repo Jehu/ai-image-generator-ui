@@ -1,6 +1,6 @@
 import { useEffect, useId, useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import CodeMirror from '@uiw/react-codemirror'
+import CodeMirror, { EditorView } from '@uiw/react-codemirror'
 import { json } from '@codemirror/lang-json'
 import type { JsonObject, JsonValue } from '#/lib/json'
 import type { FieldDef, GroupDef } from '#/lib/schema/fields'
@@ -19,6 +19,15 @@ import {
 } from '#/lib/styleObject'
 
 type DynamicOptions = Record<string, ReadonlyArray<string | number>>
+
+// Erzwingt Monospace im CodeMirror-JSON-Editor — sonst erbt der Editor die
+// proportionale UI-Schrift statt einer Code-Schrift.
+const MONO_FONT =
+  'ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace'
+const monoFontTheme = EditorView.theme({
+  '&': { fontFamily: MONO_FONT },
+  '.cm-content, .cm-gutters': { fontFamily: MONO_FONT },
+})
 
 const inputCls =
   'w-full rounded-md border bg-background p-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring'
@@ -133,7 +142,7 @@ export function StyleEditor({
             <CodeMirror
               value={jsonText}
               height="420px"
-              extensions={[json()]}
+              extensions={[json(), monoFontTheme]}
               onChange={handleJsonChange}
               basicSetup={{ lineNumbers: true, foldGutter: false }}
             />
