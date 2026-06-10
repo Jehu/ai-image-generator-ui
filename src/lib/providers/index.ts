@@ -1,8 +1,10 @@
 import { geminiProvider } from './gemini'
+import { openaiProvider } from './openai'
 import type { ImageProvider } from './types'
 
 const PROVIDERS: Record<string, ImageProvider> = {
   gemini: geminiProvider,
+  openai: openaiProvider,
 }
 
 export function getProvider(id: string): ImageProvider {

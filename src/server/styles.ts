@@ -67,6 +67,8 @@ export interface UpdateStyleInput {
   styleJson?: JsonObject
   defaultParams?: GenerateParams
   anchorImageIds?: Array<string>
+  provider?: string
+  modelId?: string
 }
 
 // ---------- Server Functions ----------
@@ -157,6 +159,8 @@ export const updateStyle = createServerFn({ method: 'POST' })
         ...(data.anchorImageIds !== undefined
           ? { anchorImageIds: asJson(data.anchorImageIds) }
           : {}),
+        ...(data.provider !== undefined ? { provider: data.provider } : {}),
+        ...(data.modelId !== undefined ? { modelId: data.modelId } : {}),
         version: nextVersion,
         ...(styleChanged
           ? {

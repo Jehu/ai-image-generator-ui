@@ -56,12 +56,17 @@ export interface ModelDescriptor {
   label: string
   maxReferenceImages: number
   supportsSeed: boolean
+  /** ob das Modell Referenz-/Anker-Bilder zur Stil-Konsistenz nutzen kann */
+  supportsReferences: boolean
   imageSizes: Array<ImageSize>
   aspectRatios: Array<AspectRatio>
 }
 
 export interface ImageProvider {
   id: string
+  /** Name der Env-Variable mit dem API-Key; der Server prüft darüber, ob der
+   *  Provider konfiguriert ist. */
+  apiKeyEnv: string
   models: Array<ModelDescriptor>
   generate: (req: GenerateRequest) => Promise<GenerateResult>
 }

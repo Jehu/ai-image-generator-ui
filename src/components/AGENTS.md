@@ -22,6 +22,7 @@ Alle `.tsx`-Dateien in diesem Verzeichnis.
 | `AnchorManager.tsx` | Anker-Bilder eines Stils anzeigen, hinzufügen, entfernen |
 | `ResultGrid.tsx` | Generierungs-Ergebnisse als Bildgitter; Klick öffnet die `Lightbox`; „Als Anker setzen"-Aktion |
 | `Lightbox.tsx` | Vollbild-Ansicht generierter Bilder (Portal); Navigation per Pfeil/Tasten, Download des Originalbildes via `downloadDataUrl` aus `#/lib/export` |
+| `ModelPicker.tsx` | Dropdown zur Wahl des Bildmodells; lädt `listAvailableModels`, rendert nur bei >1 verfügbarem Modell, fällt bei fehlendem Modell auf das erste verfügbare zurück |
 | `SaveStyleDialog.tsx` | Dialog zum Speichern des aktuellen Stils aus dem Playground |
 | `PromptPreview.tsx` | Echtzeit-Vorschau des kompilierten Prompts (via `compilePrompt`) |
 | `PresetPicker.tsx` | Vorauswahl gespeicherter Stile für den Playground |

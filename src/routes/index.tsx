@@ -9,6 +9,7 @@ import { ResultGrid } from '#/components/ResultGrid'
 import { PromptPreview } from '#/components/PromptPreview'
 import { PresetPicker } from '#/components/PresetPicker'
 import { SaveStyleDialog } from '#/components/SaveStyleDialog'
+import { ModelPicker } from '#/components/ModelPicker'
 import type { JsonObject } from '#/lib/json'
 import type {
   AspectRatio,
@@ -60,6 +61,8 @@ function Playground() {
   const [imageSize, setImageSize] = useState<ImageSize>('2K')
   const [count, setCount] = useState(2)
   const [thinkingLevel, setThinkingLevel] = useState<ThinkingLevelOpt>('high')
+  const [provider, setProvider] = useState('gemini')
+  const [modelId, setModelId] = useState('gemini-3-pro-image')
   const [saveOpen, setSaveOpen] = useState(false)
   const analyzeFileRef = useRef<HTMLInputElement>(null)
   // Feedback nach "Stil aus Bild ableiten": Ring-Flash am Editor + Banner.
@@ -94,6 +97,8 @@ function Playground() {
     mutation.mutate({
       styleJson: style,
       subject,
+      provider,
+      modelId,
       params: { aspectRatio, imageSize, count, thinkingLevel },
     })
   }
@@ -189,6 +194,15 @@ function Playground() {
               className="h-20 w-full resize-y rounded-md border bg-background p-3 text-sm"
             />
           </div>
+
+          <ModelPicker
+            provider={provider}
+            modelId={modelId}
+            onChange={(p, m) => {
+              setProvider(p)
+              setModelId(m)
+            }}
+          />
 
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <Field label="Format">
@@ -300,6 +314,8 @@ function Playground() {
         onClose={() => setSaveOpen(false)}
         styleJson={style}
         defaultParams={{ aspectRatio, imageSize, count, thinkingLevel }}
+        provider={provider}
+        modelId={modelId}
       />
     </div>
   )

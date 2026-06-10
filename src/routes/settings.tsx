@@ -37,6 +37,18 @@ function Settings() {
               </span>
             )}
           </Row>
+          <Row label="OpenAI API-Key">
+            {data.hasOpenAiKey ? (
+              <span className="text-green-600">
+                gesetzt — {data.openAiKeyMasked}
+              </span>
+            ) : (
+              <span className="text-muted-foreground">
+                nicht gesetzt (optional) — in <code>.env</code> eintragen (
+                <code>OPENAI_API_KEY</code>) für OpenAI-Bildmodelle
+              </span>
+            )}
+          </Row>
           <Row label="Bild-Speicher">
             <code>{data.imageDir}</code>
           </Row>

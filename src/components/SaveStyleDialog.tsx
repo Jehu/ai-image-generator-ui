@@ -9,12 +9,16 @@ import type { StyleDTO } from '#/lib/types'
 export function SaveStyleDialog({
   styleJson,
   defaultParams,
+  provider,
+  modelId,
   open,
   onClose,
   onSaved,
 }: {
   styleJson: JsonObject
   defaultParams: GenerateParams
+  provider?: string
+  modelId?: string
   open: boolean
   onClose: () => void
   onSaved?: (style: StyleDTO) => void
@@ -33,6 +37,8 @@ export function SaveStyleDialog({
           tags: parseList(tags),
           styleJson,
           defaultParams,
+          provider,
+          modelId,
         },
       }),
     onSuccess: (style) => {

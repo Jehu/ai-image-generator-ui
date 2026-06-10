@@ -22,6 +22,7 @@ const GEMINI_MODELS: Array<ModelDescriptor> = [
     label: 'Gemini 3 Pro Image (Nano Banana Pro)',
     maxReferenceImages: 11,
     supportsSeed: false,
+    supportsReferences: true,
     imageSizes: ['1K', '2K', '4K'],
     aspectRatios: [
       '1:1',
@@ -104,6 +105,7 @@ async function generateOnce(
 
 export const geminiProvider: ImageProvider = {
   id: 'gemini',
+  apiKeyEnv: 'GEMINI_API_KEY',
   models: GEMINI_MODELS,
   async generate(req: GenerateRequest): Promise<GenerateResult> {
     const ai = getClient()

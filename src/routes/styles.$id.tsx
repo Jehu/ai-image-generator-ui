@@ -16,6 +16,7 @@ import { AnchorManager } from '#/components/AnchorManager'
 import type { ResultImage } from '#/components/ResultGrid'
 import { ResultGrid } from '#/components/ResultGrid'
 import { Lightbox } from '#/components/Lightbox'
+import { ModelPicker } from '#/components/ModelPicker'
 import { PromptPreview } from '#/components/PromptPreview'
 import { parseList } from '#/lib/styleObject'
 import { parseDataUrl } from '#/lib/fileToDataUrl'
@@ -80,6 +81,8 @@ function StyleDetail() {
   const [imageSize, setImageSize] = useState<ImageSize>('2K')
   const [count, setCount] = useState(1)
   const [thinkingLevel, setThinkingLevel] = useState<ThinkingLevelOpt>('high')
+  const [provider, setProvider] = useState('gemini')
+  const [modelId, setModelId] = useState('gemini-3-pro-image')
   const initialized = useRef<string | null>(null)
 
   useEffect(() => {
@@ -88,6 +91,8 @@ function StyleDetail() {
       setName(style.name)
       setTags(style.tags.join(', '))
       setStyleJson(style.styleJson)
+      setProvider(style.provider)
+      setModelId(style.modelId)
       const p = style.defaultParams
       setAspectRatio((p.aspectRatio as AspectRatio) ?? '4:5')
       setImageSize((p.imageSize as ImageSize) ?? '2K')
@@ -133,6 +138,8 @@ function StyleDetail() {
           tags: parseList(tags),
           styleJson,
           defaultParams: { aspectRatio, imageSize, count, thinkingLevel },
+          provider,
+          modelId,
         },
       }),
     onSuccess: () => {
@@ -164,6 +171,8 @@ function StyleDetail() {
             styleJson,
             subject,
             styleId: id,
+            provider,
+            modelId,
             params: { aspectRatio, imageSize, count, thinkingLevel },
           },
         })
@@ -283,6 +292,15 @@ function StyleDetail() {
           <StyleEditor value={styleJson} onChange={setStyleJson} />
 
           <AnchorManager styleId={id} />
+
+          <ModelPicker
+            provider={provider}
+            modelId={modelId}
+            onChange={(p, m) => {
+              setProvider(p)
+              setModelId(m)
+            }}
+          />
 
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <ParamSelect
