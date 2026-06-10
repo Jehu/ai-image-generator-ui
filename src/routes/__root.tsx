@@ -28,7 +28,12 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         content: 'width=device-width, initial-scale=1',
       },
       {
-        title: 'TanStack Start Starter',
+        title: 'Image Style Studio',
+      },
+      {
+        name: 'description',
+        content:
+          'Reproduzierbare Foto-Bildstile für KI-Bildgenerierung finden, fixieren und konsistent anwenden.',
       },
     ],
     links: [
