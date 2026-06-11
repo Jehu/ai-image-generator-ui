@@ -25,7 +25,7 @@ Alle `.ts`-Dateien in diesem Verzeichnis.
 | `styles.ts` | CRUD für `Style` + `StyleVersion`; `listGenerations`. Generiert beim `createStyle`/`updateStyle` den Style-Brief (best-effort, blockiert Speichern nicht); regeneriert nur bei geändertem `briefSourceHash` |
 | `images.ts` | `addAnchorImage`, `removeAnchorImage`, `getImageDataUrl` |
 | `cameras.ts` | `listCameraBodies`, `upsertCameraBody`, `deleteCameraBody` |
-| `settings.ts` | `getSettingsInfo` — API-Key-Status (Gemini + OpenAI, maskiert), Bild-Speicher, DB |
+| `settings.ts` | `getSettingsInfo` — API-Key-Status (Gemini + OpenAI + OpenRouter, maskiert), Bild-Speicher, DB |
 | `models.ts` | `listAvailableModels` — Modelle aller Provider mit gesetztem API-Key (füllt die UI-Modellauswahl) |
 
 ## Work Guidance

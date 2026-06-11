@@ -49,6 +49,24 @@ Neue Provider in `PROVIDERS`-Record eintragen; `getProvider(id)` wirft bei unbek
   `thinkingLevel` entfällt. Preistabellen (`PRICE_GPT_IMAGE_1/2`) bei Änderungen hier pflegen.
 - `OPENAI_API_KEY` aus `process.env`.
 
+### OpenRouter-Besonderheiten (`openrouter.ts`)
+
+- Spricht den OpenAI-kompatiblen Chat-Completions-Endpoint über **raw `fetch`** an (nicht das
+  `openai`-SDK): `modalities: ["image","text"]`, optional `image_config`, Bild kommt in
+  `choices[0].message.images[0].image_url.url` (data-URL) zurück, `usage.cost` via `usage:{include:true}`.
+- Modellliste ist **kuratiert** (verifiziert gegen `GET /api/v1/models`): drei Nano-Banana-Generationen
+  (`google/gemini-3-pro-image-preview`, `…3.1-flash-image-preview`, `…2.5-flash-image`) plus
+  `openai/gpt-5-image` und `openai/gpt-5-image-mini`. Bild-Output-Modelle ändern sich häufig — neue IDs
+  gegen `/models` (`architecture.output_modalities` enthält `image`) prüfen, bevor du sie aufnimmst.
+- `image_config` (aspect_ratio/image_size) wird **nur an Gemini-Modelle** geschickt (`supportsImageConfig`);
+  OpenAI-Modelle ignorieren es. Kein Modell exponiert Seeds (`supportsSeed: false`).
+- Referenz-/Ankerbilder gehen als `image_url`-content-parts mit data-URL in die user-message — nur bei
+  `supportsReferences`-Modellen.
+- **Kosten:** primär `usage.cost` (tatsächlich). Fallback = Live-Pro-Bild-Preis aus `/models`
+  (In-Memory-Cache, 6 h TTL) × Bildanzahl, wenn `usage.cost` fehlt.
+- N Varianten = N parallele Calls (Image-Modality liefert 1 Bild pro Call), analog Gemini.
+- `OPENROUTER_API_KEY` aus `process.env`; optionale Header `OPENROUTER_HTTP_REFERER`/`OPENROUTER_APP_TITLE`.
+
 ## Work Guidance
 
 Neuen Provider anlegen:
