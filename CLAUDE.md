@@ -2,6 +2,18 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## README aktuell halten
+
+**Pflicht bei jedem neuen Feature oder jeder signifikanten Änderung:** `README.md` im selben
+Arbeitsschritt mit aktualisieren — nicht als separaten späteren Task. Signifikant heißt: neue
+Bildart/Provider/Modell, neue nutzersichtbare Funktion, geänderter Setup-/Env-Schritt, geänderter
+Workflow oder umgestellte Architektur-Bausteine.
+
+Konkret zu prüfende README-Stellen: Intro, „Was du damit machen kannst", Setup-Block (inkl.
+`.env`-Variablen), Scripts-Tabelle und der Architektur-Abschnitt. Verschweigt die README ein
+Feature, das im Code existiert, gilt die Aufgabe als unfertig. Diese Regel ergänzt den DOX-Pass
+für `AGENTS.md` (unten) — beide Dokument-Ebenen aktuell halten.
+
 ## Commands
 
 ```bash

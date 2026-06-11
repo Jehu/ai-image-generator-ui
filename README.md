@@ -1,11 +1,12 @@
 # Image Style Studio
 
-Lokales Tool, um **reproduzierbare Foto-Bildstile** für KI-Bildgenerierung (Gemini 3 Pro
-Image / „Nano Banana Pro") zu finden, zu fixieren und konsistent anzuwenden.
+Lokales Tool, um **reproduzierbare Bildstile** für KI-Bildgenerierung (Gemini 3 Pro
+Image / „Nano Banana Pro", optional OpenAI GPT Image) zu finden, zu fixieren und konsistent
+anzuwenden — über drei **Bildarten**: **Foto**, **Illustration** und **Infografik**.
 
-**Workflow:** Im *Playground* einen Stil per JSON/Formular finden → als Stil speichern →
-in *Produktion* nur noch das Motiv beschreiben → optisch konsistente Bilder. Stile sind über
-Tags organisierbar und werden als strukturiertes JSON gespeichert.
+**Workflow:** Im *Playground* die Bildart wählen, einen Stil per JSON/Formular finden → als
+Stil speichern → in *Produktion* nur noch das Motiv beschreiben → optisch konsistente Bilder.
+Stile sind über Tags organisierbar und werden als strukturiertes JSON gespeichert.
 
 ![Image Style Studio – Stil-Editor links, Produktion und Historie rechts](docs/screenshot.jpg)
 
@@ -29,8 +30,14 @@ Bild den Prompt neu zu tüfteln.
 
 ## Was du damit machen kannst
 
-- **Stile definieren** — den Look als strukturiertes Formular *oder* JSON festlegen: Kamera-Body,
-  Brennweite, Blende, Licht-Setup, Farbpalette, Film-Emulation, Stimmung, Negativ-Guards.
+- **Bildart wählen** — pro Stil eine von drei Bildarten festlegen; jede bringt ihr eigenes
+  Formular, eigene Presets und ihr eigenes JSON-Schema mit:
+  - **Foto** — fotorealistisch: Kamera, Optik, Licht, Color-Grade, Film-Emulation.
+  - **Illustration** — gezeichnet/gerendert: Technik, Linien, Schattierung, Farbharmonie, Textur.
+  - **Infografik** — Daten visuell: Layout, Icon-System, Farb-System, Typografie (Daten kommen
+    übers Motiv).
+- **Stile definieren** — den Look als strukturiertes Formular *oder* JSON festlegen, z. B. bei Foto:
+  Kamera-Body, Brennweite, Blende, Licht-Setup, Farbpalette, Film-Emulation, Stimmung, Negativ-Guards.
 - **Stil aus einem Bild ableiten** — ein vorhandenes (Kunden-)Foto hochladen; eine Vision-Analyse
   füllt das Stil-Formular automatisch vor und trifft Marken-Looks schnell.
 - **Konsistenz über Anker** — Referenzbilder an einen Stil pinnen; sie werden bei jeder Produktion
@@ -60,11 +67,14 @@ Bild den Prompt neu zu tüfteln.
 ```bash
 npm install
 cp .env.example .env        # GEMINI_API_KEY eintragen (https://aistudio.google.com/apikey)
+                            # optional OPENAI_API_KEY für GPT-Image-Modelle
 npm run db:push             # SQLite-Schema anlegen
 npm run dev                 # http://localhost:3000
 ```
 
-Den API-Key nach Änderung der `.env` neu laden → Dev-Server neu starten.
+Pflichtfeld ist `GEMINI_API_KEY`. Ist zusätzlich `OPENAI_API_KEY` gesetzt, lässt sich das
+Modell pro Generierung umschalten. API-Keys nach Änderung der `.env` neu laden → Dev-Server
+neu starten.
 
 ## Scripts
 
@@ -85,8 +95,11 @@ Den API-Key nach Änderung der `.env` neu laden → Dev-Server neu starten.
 - **Provider-Abstraktion** (`src/lib/providers/`): Gemini (`gemini-3-pro-image` via
   `@google/genai`) und OpenAI (`gpt-image-1`/`gpt-image-2` via `openai`) implementiert. Sind beide
   API-Keys gesetzt, wählt man das Modell pro Generierung; Imagen o.Ä. später einsteckbar.
-- **Stil-Schema** (`src/lib/schema/photoStyle.ts`, Zod): Single Source of Truth für
-  Formular + JSON-Validierung. `looseObject` → eigene JSON-Felder bleiben erhalten.
+- **Bildart-Registry** (`src/lib/kinds/`): jede Bildart (`foto`, `illustration`, `infografik`)
+  bündelt ihr Zod-Schema, Formular-Gruppen, Default-Stil und Presets als `KindDef`. StyleEditor
+  und PresetPicker rendern generisch aus der aktiven Bildart. Das Foto-Schema
+  (`src/lib/schema/photoStyle.ts`) ist die Vorlage; `looseObject` → eigene JSON-Felder bleiben
+  erhalten.
 - **Prompt-Kompilierung** (`src/lib/prompt/compile.ts`): fixiertes Stil-JSON + `subject` →
   Prompt; bei Ankern Stil-Transfer-Anweisung.
 - **Storage-Adapter** (`src/lib/storage/`): lokaler Filesystem-Adapter (`data/images`);
