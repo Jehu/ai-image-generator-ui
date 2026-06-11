@@ -36,6 +36,6 @@ npm test   # deckt compile.test.ts, photoStyle.test.ts, styleObject.test.ts, exp
 ## Child DOX Index
 
 - [`kinds/AGENTS.md`](kinds/AGENTS.md) — Bildart-Registry (foto, illustration, infografik)
-- [`providers/AGENTS.md`](providers/AGENTS.md) — ImageProvider-Interface, Gemini-Implementierung
+- [`providers/AGENTS.md`](providers/AGENTS.md) — ImageProvider-Interface; Gemini-, OpenAI- und OpenRouter-Implementierung
 - [`schema/AGENTS.md`](schema/AGENTS.md) — Zod-Fotostil-Schema (Single Source of Truth für Foto)
 - [`storage/AGENTS.md`](storage/AGENTS.md) — StorageAdapter-Interface, lokale Implementierung

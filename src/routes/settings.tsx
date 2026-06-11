@@ -49,6 +49,18 @@ function Settings() {
               </span>
             )}
           </Row>
+          <Row label="OpenRouter API-Key">
+            {data.hasOpenRouterKey ? (
+              <span className="text-green-600">
+                gesetzt — {data.openRouterKeyMasked}
+              </span>
+            ) : (
+              <span className="text-muted-foreground">
+                nicht gesetzt (optional) — in <code>.env</code> eintragen (
+                <code>OPENROUTER_API_KEY</code>) für OpenRouter-Bildmodelle
+              </span>
+            )}
+          </Row>
           <Row label="Bild-Speicher">
             <code>{data.imageDir}</code>
           </Row>

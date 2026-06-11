@@ -1,10 +1,12 @@
 import { geminiProvider } from './gemini'
 import { openaiProvider } from './openai'
+import { openrouterProvider } from './openrouter'
 import type { ImageProvider } from './types'
 
 const PROVIDERS: Record<string, ImageProvider> = {
   gemini: geminiProvider,
   openai: openaiProvider,
+  openrouter: openrouterProvider,
 }
 
 export function getProvider(id: string): ImageProvider {

@@ -1,8 +1,9 @@
 # Image Style Studio
 
 Lokales Tool, um **reproduzierbare Bildstile** für KI-Bildgenerierung (Gemini 3 Pro
-Image / „Nano Banana Pro", optional OpenAI GPT Image) zu finden, zu fixieren und konsistent
-anzuwenden — über drei **Bildarten**: **Foto**, **Illustration** und **Infografik**.
+Image / „Nano Banana Pro", optional OpenAI GPT Image oder Modelle über OpenRouter) zu finden,
+zu fixieren und konsistent anzuwenden — über drei **Bildarten**: **Foto**, **Illustration**
+und **Infografik**.
 
 **Workflow:** Im *Playground* die Bildart wählen, einen Stil per JSON/Formular finden → als
 Stil speichern → in *Produktion* nur noch das Motiv beschreiben → optisch konsistente Bilder.
@@ -44,8 +45,9 @@ Bild den Prompt neu zu tüfteln.
   mitgeschickt und heben die optische Konsistenz deutlich an (siehe unten).
 - **In Produktion gehen** — gespeicherten Stil wählen, nur noch Motive beschreiben (eine pro Zeile
   = Stapel) und konsistente Varianten erzeugen.
-- **Modell wählen** — Google Gemini (Nano Banana Pro) und OpenAI (GPT Image); sind beide API-Keys
-  gesetzt, lässt sich das Modell pro Generierung umschalten.
+- **Modell wählen** — Google Gemini (Nano Banana Pro) und OpenAI (GPT Image) direkt, oder eine
+  kuratierte Auswahl über **OpenRouter** (ein Key statt Vendor-Keys je Anbieter); sind mehrere
+  Keys gesetzt, lässt sich das Modell pro Generierung umschalten.
 - **Bibliothek** — Stile taggen, durchsuchen, duplizieren und versionieren.
 - **Ergebnisse verwalten** — Historie mit Vorschau, Lightbox, Original-Download, Stapel-Download
   als ZIP und Kostenanzeige pro Lauf.
@@ -58,9 +60,9 @@ Bild den Prompt neu zu tüfteln.
 - Eine **Social-Media-Serie** mit wiedererkennbarer Ästhetik.
 - Einen **Marken- oder Kunden-Look** schnell treffen — per „Stil aus Bild ableiten".
 
-> Hinweis: Du brauchst einen eigenen API-Key (Google Gemini, optional OpenAI). Generierungen
-> laufen über deinen Account und verursachen die jeweiligen Anbieterkosten; die geschätzten
-> Kosten pro Lauf werden angezeigt.
+> Hinweis: Du brauchst einen eigenen API-Key (Google Gemini, optional OpenAI oder OpenRouter).
+> Generierungen laufen über deinen Account und verursachen die jeweiligen Anbieterkosten; die
+> geschätzten Kosten pro Lauf werden angezeigt.
 
 ## Setup
 
@@ -68,13 +70,14 @@ Bild den Prompt neu zu tüfteln.
 npm install
 cp .env.example .env        # GEMINI_API_KEY eintragen (https://aistudio.google.com/apikey)
                             # optional OPENAI_API_KEY für GPT-Image-Modelle
+                            # optional OPENROUTER_API_KEY für OpenRouter-Modelle
 npm run db:push             # SQLite-Schema anlegen
 npm run dev                 # http://localhost:3000
 ```
 
-Pflichtfeld ist `GEMINI_API_KEY`. Ist zusätzlich `OPENAI_API_KEY` gesetzt, lässt sich das
-Modell pro Generierung umschalten. API-Keys nach Änderung der `.env` neu laden → Dev-Server
-neu starten.
+Pflichtfeld ist `GEMINI_API_KEY`. Ist zusätzlich `OPENAI_API_KEY` oder `OPENROUTER_API_KEY`
+gesetzt, lässt sich das Modell pro Generierung umschalten. API-Keys nach Änderung der `.env`
+neu laden → Dev-Server neu starten.
 
 ## Scripts
 
@@ -93,8 +96,9 @@ neu starten.
 - **Prisma + SQLite** (`prisma/schema.prisma`) lokal. Für Team später: Provider auf
   `postgresql` + passenden Driver-Adapter in `src/db.ts`; Modell ist vorbereitet.
 - **Provider-Abstraktion** (`src/lib/providers/`): Gemini (`gemini-3-pro-image` via
-  `@google/genai`) und OpenAI (`gpt-image-1`/`gpt-image-2` via `openai`) implementiert. Sind beide
-  API-Keys gesetzt, wählt man das Modell pro Generierung; Imagen o.Ä. später einsteckbar.
+  `@google/genai`), OpenAI (`gpt-image-1`/`gpt-image-2` via `openai`) und OpenRouter (kuratierte
+  Bildmodelle über den Chat-Completions-Endpoint mit `modalities:["image","text"]`) implementiert.
+  Sind mehrere API-Keys gesetzt, wählt man das Modell pro Generierung; Imagen o.Ä. später einsteckbar.
 - **Bildart-Registry** (`src/lib/kinds/`): jede Bildart (`foto`, `illustration`, `infografik`)
   bündelt ihr Zod-Schema, Formular-Gruppen, Default-Stil und Presets als `KindDef`. StyleEditor
   und PresetPicker rendern generisch aus der aktiven Bildart. Das Foto-Schema
